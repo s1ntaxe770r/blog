@@ -1,0 +1,44 @@
+baseURL = "https://log.jubril.me/"
+languageCode = "en-us"
+title = "$> cat /var/log/e770r"
+theme = "hugo-notepadium"
+copyright = "©2021 s1ntaxe770r"
+
+[params.nav]
+showCategories = true       
+showTags = true  
+
+[params]
+logo = "https://avatars.githubusercontent.com/u/53065463?v=4"
+slogan = "logging my experiences on blog at a time ~"
+readingTime = false  
+
+
+[params.profile]
+enable = true
+avatar = "https://avatars.githubusercontent.com/u/53065463?v=4"
+name = "s1ntaxe770r"
+twitter = "https://twitter.com/s1ntaxe770r" 
+github = "https://github.com/s1ntaxe770r"
+docker = "https://hub.docker.com/u/e770r"  
+
+[params.share]
+enable = true
+addThisId = "ra-1234567890"
+inlineToolId = ""
+
+
+[markup]
+  [markup.highlight]
+    anchorLineNos = false
+    codeFences = true
+    guessSyntax = false
+    hl_Lines = ""
+    lineAnchors = ""
+    lineNoStart = 1
+    lineNos = false
+    lineNumbersInTable = true
+    noClasses = true
+    style = "dracula"
+    tabWidth = 4
+
