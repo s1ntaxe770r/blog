@@ -1,4 +1,4 @@
-baseURL = "https://log.jubril.me/"
+baseURL = "https://jubril.me/blog/"
 languageCode = "en-us"
 title = "$> cat /var/log/e770r"
 theme = "hugo-notepadium"
