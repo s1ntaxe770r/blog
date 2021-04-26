@@ -10,7 +10,7 @@ showTags = true
 
 [params]
 logo = "https://avatars.githubusercontent.com/u/53065463?v=4"
-slogan = "logging my experiences on blog at a time ~"
+slogan = "logging my experiences one blog at a time ~"
 readingTime = false  
 
 
@@ -24,7 +24,6 @@ docker = "https://hub.docker.com/u/e770r"
 
 [params.share]
 enable = true
-addThisId = "ra-1234567890"
 inlineToolId = ""
 
 
