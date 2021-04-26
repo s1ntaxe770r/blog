@@ -1,4 +1,4 @@
-baseURL = "https://log.jubril.me/"
+baseURL = "https://log.jubril.me"
 languageCode = "en-us"
 title = "$> cat /var/log/e770r"
 theme = "hugo-notepadium"
@@ -18,9 +18,9 @@ readingTime = false
 enable = true
 avatar = "https://avatars.githubusercontent.com/u/53065463?v=4"
 name = "s1ntaxe770r"
-twitter = "https://twitter.com/s1ntaxe770r" 
-github = "https://github.com/s1ntaxe770r"
-docker = "https://hub.docker.com/u/e770r"  
+twitter = "s1ntaxe770r" 
+github = "s1ntaxe770r"
+docker = "e770r"  
 
 [params.share]
 enable = true
