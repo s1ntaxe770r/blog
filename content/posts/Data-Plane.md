@@ -2,6 +2,7 @@
 title: "What the heck is a data plane?"
 date: 2021-05-12T12:49:07+01:00
 draft: false
+tags: [service mesh , data plane]
 ---
 
 ![Paper Airplane Sets Record With 82-Mile Flight](https://www.treehugger.com/thmb/zHEqqllMa66MSzzitQ8G5pp136Y=/768x0/filters:no_upscale():max_bytes(150000):strip_icc()/__opt__aboutcom__coeus__resources__content_migration__mnn__images__2014__09__shutterstock_556793080-b4a5fd4b2287434b959ef955e39a7aa7.jpg)
