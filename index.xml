@@ -1,2 +1,24 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>$> cat /var/log/e770r</title><link>https://log.jubril.me/</link><description>Recent content on $> cat /var/log/e770r</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>©2021 s1ntaxe770r</copyright><lastBuildDate>Mon, 26 Apr 2021 15:38:07 +0100</lastBuildDate><atom:link href="https://log.jubril.me/index.xml" rel="self" type="application/rss+xml"/><item><title>First Post</title><link>https://log.jubril.me/posts/first-post/</link><pubDate>Mon, 26 Apr 2021 15:38:07 +0100</pubDate><guid>https://log.jubril.me/posts/first-post/</guid><description>&lt;h1 id="wow-it-works">Wow it works&lt;/h1>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>$> cat /var/log/e770r</title><link>https://log.jubril.me/</link><description>Recent content on $> cat /var/log/e770r</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>©2021 s1ntaxe770r</copyright><lastBuildDate>Wed, 12 May 2021 12:49:07 +0100</lastBuildDate><atom:link href="https://log.jubril.me/index.xml" rel="self" type="application/rss+xml"/><item><title>What the heck is a data plane?</title><link>https://log.jubril.me/posts/data-plane/</link><pubDate>Wed, 12 May 2021 12:49:07 +0100</pubDate><guid>https://log.jubril.me/posts/data-plane/</guid><description>&lt;p>&lt;img src="https://www.treehugger.com/thmb/zHEqqllMa66MSzzitQ8G5pp136Y=/768x0/filters:no_upscale%28%29:max_bytes%28150000%29:strip_icc%28%29/__opt__aboutcom__coeus__resources__content_migration__mnn__images__2014__09__shutterstock_556793080-b4a5fd4b2287434b959ef955e39a7aa7.jpg"
+alt="Paper Airplane Sets Record With 82-Mile Flight"/>&lt;/p>
+&lt;p>As i sit here at 12:50am . I attempt to answer the question that&amp;rsquo;s been on my mind for days now. &amp;ldquo;What the heck is a data plane?&amp;rdquo;.&lt;/p>
+&lt;p>To fully understand we need to back track a bit. A data plane is one of two major components of a &lt;a href="https://www.redhat.com/en/topics/microservices/what-is-a-service-mesh"target="_blank" rel="noopener noreferrer">service mesh&lt;/a>
+, yet that alone is far from the answer i seek.&lt;/p>
+&lt;h2 id="taking-a-closer-look">Taking a closer look&lt;/h2>
+&lt;p>To find the answers i seek, it&amp;rsquo;s worth taking look at the architecture of a typical service mesh and analyze from there.&lt;/p>
+&lt;p>&lt;span class="image-container">&lt;span class="link">&lt;img class="img" src="https://istio.io/latest/docs/ops/deployment/architecture/arch.svg"
+alt="istio architecture"/>&lt;/span>&lt;span class="caption">&lt;span class="title">istio service meshe architecture&lt;/span>&lt;/span>&lt;/span>&lt;/p>
+&lt;p>When a request comes into service A on lets &lt;code>/login&lt;/code> the data plane ( AKA the sidecar proxy, in this case the envoy instance in the diagram ) is responsible for resolving what service the request is to be forwarded, collect metrics , perform healthchecks and a buch of other stuff the service mesh user might have configred it to do.&lt;/p>
+&lt;h2 id="tldr">TL;DR&lt;/h2>
+&lt;p>A data plane is a component of a service mesh responsible for:&lt;/p>
+&lt;ul>
+&lt;li>Routing&lt;/li>
+&lt;li>Load Balancing&lt;/li>
+&lt;li>Health Checks&lt;/li>
+&lt;li>Observability&lt;/li>
+&lt;li>Service Discovery&lt;/li>
+&lt;/ul>
+&lt;p>Popular examples inclued , &lt;a href="https://envoyproxy.io"target="_blank" rel="noopener noreferrer">Envoy proxy&lt;/a>
+, &lt;a href="https://nginx.com"target="_blank" rel="noopener noreferrer">Nginx&lt;/a>
+, &lt;a href="https://traefik.io/"target="_blank" rel="noopener noreferrer">Traefik&lt;/a>
+.&lt;/p></description></item><item><title>First Post</title><link>https://log.jubril.me/posts/first-post/</link><pubDate>Mon, 26 Apr 2021 15:38:07 +0100</pubDate><guid>https://log.jubril.me/posts/first-post/</guid><description>&lt;h1 id="wow-it-works">Wow it works&lt;/h1>
 &lt;p>Hello world&lt;/p></description></item></channel></rss>
