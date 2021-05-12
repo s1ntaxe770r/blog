@@ -40,4 +40,8 @@ inlineToolId = ""
     noClasses = true
     style = "dracula"
     tabWidth = 4
+    
+[taxonomies]
+category = "categories"
+tag = "tags"
 
