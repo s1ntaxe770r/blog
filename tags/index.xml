@@ -6,7 +6,7 @@ alt="Paper Airplane Sets Record With 82-Mile Flight"/>&lt;/p>
 &lt;h2 id="taking-a-closer-look">Taking a closer look&lt;/h2>
 &lt;p>To find the answers i seek, it&amp;rsquo;s worth taking look at the architecture of a typical service mesh and analyze from there.&lt;/p>
 &lt;p>&lt;span class="image-container">&lt;span class="link">&lt;img class="img" src="https://istio.io/latest/docs/ops/deployment/architecture/arch.svg"
-alt="istio architecture"/>&lt;/span>&lt;span class="caption">&lt;span class="title">istio service meshe architecture&lt;/span>&lt;/span>&lt;/span>&lt;/p>
+alt="istio architecture"/>&lt;/span>&lt;span class="caption">&lt;span class="title">istio service mesh architecture&lt;/span>&lt;/span>&lt;/span>&lt;/p>
 &lt;p>When a request comes into service A on lets &lt;code>/login&lt;/code> the data plane ( AKA the sidecar proxy, in this case the envoy instance in the diagram ) is responsible for resolving what service the request is to be forwarded, collect metrics , perform healthchecks and a buch of other stuff the service mesh user might have configred it to do.&lt;/p>
 &lt;h2 id="tldr">TL;DR&lt;/h2>
 &lt;p>A data plane is a component of a service mesh responsible for:&lt;/p>
