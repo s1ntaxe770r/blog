@@ -16,7 +16,7 @@ To fully understand we need to back track a bit. A data plane is one of two majo
 
 To find the answers i seek, it's worth taking look at the architecture of a typical service mesh and analyze from there. 
 
-![istio architecture](https://istio.io/latest/docs/ops/deployment/architecture/arch.svg "istio service meshe architecture")
+![istio architecture](https://istio.io/latest/docs/ops/deployment/architecture/arch.svg "istio service mesh architecture")
 
 
 When a request comes into service A on lets  `/login` the data plane ( AKA the sidecar proxy, in this case the envoy instance in the diagram ) is responsible for resolving what service the request is to be forwarded, collect metrics , perform healthchecks and a buch of other stuff the service mesh user might have configred it to do. 
