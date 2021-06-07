@@ -1,12 +1,12 @@
-﻿---
-title: "Infrastructure Automation with Kubestack"
-date: 2021-06-26T19:08:07+01:00
+---
+title: "Infrastructure Automation With Kubestack"
+date: 2021-06-07T19:15:43+01:00
 draft: false
-tags: [service mesh , data plane]
 ---
 
+
 # Infrastructure Automation with Kubestack
-![enter image description here](https://repository-images.githubusercontent.com/161867918/8023b100-c1a8-11e9-8296-b63c3c068427)
+![kubestack](https://repository-images.githubusercontent.com/161867918/8023b100-c1a8-11e9-8296-b63c3c068427)
 
 Over the weekend I got to try out [Kubestack](https://kubestack.com) and  in this post, I would be giving some of my thoughts on it.
 
@@ -77,3 +77,4 @@ Was it worth it? Yes, it was. this is hands down the quickest I've ever  set up 
 
 
 That sums up my experience with  Kubestack feel free to check it out over [here](https://kubestack.com)  and the complete code from the tutorial over  [here](https://github.com/s1ntaxe770r/kubestack-sandbox)
+
