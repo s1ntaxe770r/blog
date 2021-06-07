@@ -1,7 +1,9 @@
-﻿title: "Infrastructure Automation with Kubestack"
+﻿---
+title: "Infrastructure Automation with Kubestack"
 date: 2021-06-26T19:08:07+01:00
 draft: false
-
+tags: [service mesh , data plane]
+---
 
 # Infrastructure Automation with Kubestack
 ![enter image description here](https://repository-images.githubusercontent.com/161867918/8023b100-c1a8-11e9-8296-b63c3c068427)
