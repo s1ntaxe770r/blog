@@ -1,4 +1,51 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Categories on $> cat /var/log/e770r</title><link>https://log.jubril.me/categories/</link><description>Recent content in Categories on $> cat /var/log/e770r</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>©2021 s1ntaxe770r</copyright><atom:link href="https://log.jubril.me/categories/index.xml" rel="self" type="application/rss+xml"/><item><title>What the heck is a data plane?</title><link>https://log.jubril.me/posts/data-plane/</link><pubDate>Wed, 12 May 2021 12:49:07 +0100</pubDate><guid>https://log.jubril.me/posts/data-plane/</guid><description>&lt;p>&lt;img src="https://www.treehugger.com/thmb/zHEqqllMa66MSzzitQ8G5pp136Y=/768x0/filters:no_upscale%28%29:max_bytes%28150000%29:strip_icc%28%29/__opt__aboutcom__coeus__resources__content_migration__mnn__images__2014__09__shutterstock_556793080-b4a5fd4b2287434b959ef955e39a7aa7.jpg"
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Categories on $> cat /var/log/e770r</title><link>https://log.jubril.me/categories/</link><description>Recent content in Categories on $> cat /var/log/e770r</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>©2021 s1ntaxe770r</copyright><atom:link href="https://log.jubril.me/categories/index.xml" rel="self" type="application/rss+xml"/><item><title>Infrastructure Automation With Kubestack</title><link>https://log.jubril.me/posts/infra-automation-with-kubestack/</link><pubDate>Mon, 07 Jun 2021 19:15:43 +0100</pubDate><guid>https://log.jubril.me/posts/infra-automation-with-kubestack/</guid><description>&lt;h1 id="infrastructure-automation-with-kubestack">Infrastructure Automation with Kubestack&lt;/h1>
+&lt;p>&lt;img src="https://repository-images.githubusercontent.com/161867918/8023b100-c1a8-11e9-8296-b63c3c068427"
+alt="kubestack"/>&lt;/p>
+&lt;p>Over the weekend I got to try out &lt;a href="https://kubestack.com"target="_blank" rel="noopener noreferrer">Kubestack&lt;/a>
+and in this post, I would be giving some of my thoughts on it.&lt;/p>
+&lt;p>FULL DISCLAIMER: while I am being paid to write this post the opinions and views expressed here are completely mines.&lt;/p>
+&lt;h2 id="so-whats-this-thing-anyway">So what&amp;rsquo;s this thing anyway?&lt;/h2>
+&lt;p>That was my first question as I have only ever heard about Kubestack in passing.&lt;/p>
+&lt;p>Kubestack is a &lt;a href="https://about.gitlab.com/topics/gitops/"target="_blank" rel="noopener noreferrer">GitOps&lt;/a>
+framework aimed at simplifying the process of spinning up a Kubernetes cluster and automating subsequent deployments to your cluster. At the time of writing, Kubestack supports GKE, AKS, and EKS. Alright, now I know what it is but how is this any different than building my own CI/CD pipeline? Only one way to find out&amp;hellip;&lt;/p>
+&lt;h2 id="getting-started">Getting started&lt;/h2>
+&lt;p>Before this, I have only made one attempt at automating how I deploy Kubernetes on azure, so if this worked out it would be such a joy because my last experiment didn&amp;rsquo;t go too well. So for the majority of this process, I would keep comparing my experience to my last attempt at something like this.&lt;/p>
+&lt;p>Enough talk let&amp;rsquo;s get right to it. The quickest way of getting started with Kubestack is by going through the &lt;a href="https://www.kubestack.com/framework/documentation/tutorial-get-started"target="_blank" rel="noopener noreferrer">getting started&lt;/a>
+guide. The guide is split into three parts which I find very nice as it allowed me to digest an individual section before moving to the next.&lt;/p>
+&lt;h3 id="kubestack-command-line">Kubestack command line&lt;/h3>
+&lt;p>The setup here was quite straightforward, grab the binary, unzip and move it to your path, before I proceeded with the rest of the tutorial I decided to explore a bit by viewing some of the subcommand available. Honestly, I have no real complaints here, the subcommands are clearly explained and flags are consistent. Although I would like to see tab completion, that&amp;rsquo;s just personal preference 😄&lt;/p>
+&lt;h3 id="bootstrapping-your-cluster">Bootstrapping your cluster&lt;/h3>
+&lt;p>Creating a cluster with Kubestack gets even easier as it automatically generates the base terraform&lt;/p>
+&lt;p>code. This is powerful because one you can now generate the configuration for all supported clouds and two I no longer have to copy and paste most of my code from a previous project. Once you have your &amp;ldquo;repository&amp;rdquo; initialized you only have to change three values to get going.&lt;/p>
+&lt;p>Where things started to get tricky for me was the inheritance model the terraform code Kubestack generated uses, But this might be due to my lack of experience in that area but it&amp;rsquo;s something to look out for.&lt;/p>
+&lt;h3 id="testing-locally">Testing locally&lt;/h3>
+&lt;p>Kubestack has a neat feature that will provision a local Kubernetes cluster using &lt;a href="https://kind.sigs.k8s.io/"target="_blank" rel="noopener noreferrer">KinD&lt;/a>
+and test your configuration against it, the advantage of this can&amp;rsquo;t be emphasized enough, I&amp;rsquo;ve broken a good chunk of my infrastructure simply because I didn&amp;rsquo;t have a sandbox environment to test against.&lt;/p>
+&lt;p>In addition, Kubestack generates a docker image with a few tools installed e.g(Kustomize, Terraform)&lt;/p>
+&lt;p>I found this quite convenient as I had an older version of terraform installed so I just opted to use the docker image instead. Creating a service principal for my account was a fairly smooth experience, the only real problem I ran into was giving to my service account. I ran into the following &lt;a href="https://login.microsoftonline.com/error?code=50076"target="_blank" rel="noopener noreferrer">error&lt;/a>
+which I was able to resolve by granting the account permission through the Azure portal.&lt;/p>
+&lt;h2 id="deploying">Deploying&lt;/h2>
+&lt;p>This was equally as easy creating two workspaces and deploying resources in each was pretty straightforward, one new concept (for me at least) is Kubestack would set up DNS per environment so this interesting to see.&lt;/p>
+&lt;h2 id="automation">Automation&lt;/h2>
+&lt;p>This was the part I was looking forward to the most. The goal is simple. Have a GitHub action setup in such a way that I can deploy to different environments and the pipeline would apply the Configuration.&lt;/p>
+&lt;h4 id="did-it-work">Did it work?&lt;/h4>
+&lt;p>Yes! Of all the steps this took me the least amount of time to complete, the only problem I ran into was base64 encoding my credentials which I got around by removing &lt;code>-w&lt;/code> because line breaks are automatically ignored on Mac, even at that it took me about 10mins to set up the entire pipeline.&lt;/p>
+&lt;p>While I&amp;rsquo;m a huge fan of Github actions it would be nice to have the option of seeing the setup for other CI services like GitLab&lt;/p>
+&lt;h2 id="beyond-the-tutorial">Beyond the tutorial&lt;/h2>
+&lt;p>And now for the fun part, trying things outside the tutorial. For this part, I wanted to see what else I could deploy to my cluster so I consulted the &lt;a href="https://www.kubestack.com/catalog"target="_blank" rel="noopener noreferrer">catalog&lt;/a>
+section and picked Argo CD ( other resources such as Flux Prometheus Operator and Cert Manger are also available ), as I mentioned earlier I&amp;rsquo;m very new to the inheritance model Kubestack uses and so this did not end too well, but this was not a total failure I saw this as an opportunity to really stretch the Pipeline I had just built out and so I made one more failing deployment and then I was able to rollback by simply reverting my commit, this is where GitOps truly shines, the fact that your infrastructure can now be thought of as commits in Git, Although I think the documentation could do a better job towards guiding people new to this style of configuration.&lt;/p>
+&lt;h2 id="additional-concerns">Additional concerns&lt;/h2>
+&lt;p>As I worked my way through the tutorial one thing that bothered me were the deprecation warnings that popped up every now and then, as i mentioned earlier this is something that could be fixed in a subsequent release.&lt;/p>
+&lt;h2 id="closing-thoughts">Closing thoughts&lt;/h2>
+&lt;p>At the end of the entire process I had but one question.&lt;/p>
+&lt;p>Was it worth it? Yes, it was. this is hands down the quickest I&amp;rsquo;ve ever set up something like this the entire process took me about an hour, compared to my previous attempt which took me three days :). So this is a huge saving in effort and time, a few additional things i&amp;rsquo;d like to see are:&lt;/p>
+&lt;ul>
+&lt;li>more resources in the catalouge section.&lt;/li>
+&lt;li>more clouds supported.&lt;/li>
+&lt;/ul>
+&lt;p>That sums up my experience with Kubestack feel free to check it out over &lt;a href="https://kubestack.com"target="_blank" rel="noopener noreferrer">here&lt;/a>
+and the complete code from the tutorial over &lt;a href="https://github.com/s1ntaxe770r/kubestack-sandbox"target="_blank" rel="noopener noreferrer">here&lt;/a>
+&lt;/p></description></item><item><title>What the heck is a data plane?</title><link>https://log.jubril.me/posts/data-plane/</link><pubDate>Wed, 12 May 2021 12:49:07 +0100</pubDate><guid>https://log.jubril.me/posts/data-plane/</guid><description>&lt;p>&lt;img src="https://www.treehugger.com/thmb/zHEqqllMa66MSzzitQ8G5pp136Y=/768x0/filters:no_upscale%28%29:max_bytes%28150000%29:strip_icc%28%29/__opt__aboutcom__coeus__resources__content_migration__mnn__images__2014__09__shutterstock_556793080-b4a5fd4b2287434b959ef955e39a7aa7.jpg"
 alt="Paper Airplane Sets Record With 82-Mile Flight"/>&lt;/p>
 &lt;p>As i sit here at 12:50am . I attempt to answer the question that&amp;rsquo;s been on my mind for days now. &amp;ldquo;What the heck is a data plane?&amp;rdquo;.&lt;/p>
 &lt;p>To fully understand we need to back track a bit. A data plane is one of two major components of a &lt;a href="https://www.redhat.com/en/topics/microservices/what-is-a-service-mesh"target="_blank" rel="noopener noreferrer">service mesh&lt;/a>
