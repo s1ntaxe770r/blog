@@ -45,7 +45,4 @@ inlineToolId = ""
 category = "categories"
 tag = "tags"
 
-[params.nav]
-showCategories = true       # /categories/
-showTags = true             # /tags/
 

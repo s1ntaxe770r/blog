@@ -2,6 +2,7 @@
 title: "Infrastructure Automation With Kubestack"
 date: 2021-06-07T19:15:43+01:00
 draft: false
+cover: https://repository-images.githubusercontent.com/161867918/8023b100-c1a8-11e9-8296-b63c3c068427
 ---
 
 
