@@ -3,7 +3,7 @@ languageCode = "en-us"
 title = "$> cat /var/log/e770r"
 theme = "hugo-notepadium"
 copyright = "©2021 s1ntaxe770r"
-
+googleAnalytics="G-D6NJ1ZKSX9"
 [params.nav]
 showCategories = true       
 showTags = true  
@@ -44,4 +44,8 @@ inlineToolId = ""
 [taxonomies]
 category = "categories"
 tag = "tags"
+
+[params.nav]
+showCategories = true       # /categories/
+showTags = true             # /tags/
 
