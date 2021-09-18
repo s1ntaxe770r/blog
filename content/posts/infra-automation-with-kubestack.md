@@ -7,7 +7,6 @@ cover: https://repository-images.githubusercontent.com/161867918/8023b100-c1a8-1
 
 
 # Infrastructure Automation with Kubestack
-![kubestack](https://repository-images.githubusercontent.com/161867918/8023b100-c1a8-11e9-8296-b63c3c068427)
 
 Over the weekend I got to try out [Kubestack](https://kubestack.com) and  in this post, I would be giving some of my thoughts on it.
 
