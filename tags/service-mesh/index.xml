@@ -1,6 +1,4 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>service mesh on $> cat /var/log/e770r</title><link>https://log.jubril.me/tags/service-mesh/</link><description>Recent content in service mesh on $> cat /var/log/e770r</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>©2021 s1ntaxe770r</copyright><lastBuildDate>Wed, 12 May 2021 12:49:07 +0100</lastBuildDate><atom:link href="https://log.jubril.me/tags/service-mesh/index.xml" rel="self" type="application/rss+xml"/><item><title>Infrastructure Automation With Kubestack</title><link>https://log.jubril.me/posts/infra-automation-with-kubestack/</link><pubDate>Mon, 07 Jun 2021 19:15:43 +0100</pubDate><guid>https://log.jubril.me/posts/infra-automation-with-kubestack/</guid><description>&lt;h1 id="infrastructure-automation-with-kubestack">Infrastructure Automation with Kubestack&lt;/h1>
-&lt;p>&lt;img src="https://repository-images.githubusercontent.com/161867918/8023b100-c1a8-11e9-8296-b63c3c068427"
-alt="kubestack"/>&lt;/p>
 &lt;p>Over the weekend I got to try out &lt;a href="https://kubestack.com"target="_blank" rel="noopener noreferrer">Kubestack&lt;/a>
 and in this post, I would be giving some of my thoughts on it.&lt;/p>
 &lt;p>FULL DISCLAIMER: while I am being paid to write this post the opinions and views expressed here are completely mines.&lt;/p>
