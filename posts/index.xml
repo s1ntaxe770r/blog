@@ -8,8 +8,8 @@ and now HTTP 3 which is apparently going to save us all(no offense,i think &lt;a
 &lt;p>well every so often I ask myself if I where to explain &lt;!-- raw HTML omitted --> to someone would i really be able to do it? if the answer is no , then it&amp;rsquo;s safe to say I don&amp;rsquo;t know enough about said topic, which means I need to do more research or find a way to put words together so the other person can understand. And this was the case with TLS,
 whilst watching Daniel&amp;rsquo;s presentation I honestly never thought about explaining TLS, I mean i&amp;rsquo;ve tried once, but i&amp;rsquo;m quite sure the other person understood only because he was a technical person and not because i did a good job. So now i attempt to explain TLS in as few words as possible.&lt;/p>
 &lt;p>&lt;img src="https://i.gifer.com/PlA0.gif"
-alt="quic"/>
-lol get it? quic. Okay enough with the bad jokes.&lt;/p>
+alt="quic"/>&lt;/p>
+&lt;p>lol get it? quic. Okay enough with the bad jokes.&lt;/p>
 &lt;p>So you know that little lock icon 🔒 you see in your browser when you head to your favorite website? TLS has something to do with that. Essentially TLS ensures that whoever you want to talk to on the inter webs is who they say they are, This means if i&amp;rsquo;m going to hipstergram.com, TLS ensures that i am indeed browsing hipstergram.com and what ever I am talking to hipstergram about stays between us, this could be something like login details , password details which would traditionally be visible to someone who is on the same wifi network as me, this is why you get that warning from your browser when you are browsing websites using HTTP, AKA websites without a lock icon. And now you maybe wondering&amp;hellip; How?
 &lt;img src="https://media3.giphy.com/media/l4FGnHKwXZpdYu208/giphy.gif?cid=3640f6095bcf96f74f3847334945c030"
 alt="how"/>&lt;/p>
