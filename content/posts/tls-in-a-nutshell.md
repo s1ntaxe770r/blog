@@ -2,7 +2,7 @@
 title: "TLS in a Nutshell"
 date: 2021-10-06T02:37:19+01:00
 draft: false
-cover: https://media.gettyimages.com/photos/close-up-of-lock-and-metal-chain-picture-id84304606?s=612x612
+cover: https://www.bhhelp.site/wp-content/uploads/2020/08/door-broken-padlock.jpg
 tags: [http,web,internet]
 ---
 
@@ -18,6 +18,8 @@ well every so often I ask myself if I where to explain <insert thing here> to so
 whilst watching Daniel's presentation I honestly never thought about explaining TLS, I mean i've tried once, but i'm quite sure the other person understood only because he was a technical person and not because i did a good job. So now i attempt to explain TLS in as few words as possible. 
 	
 ![quic](https://i.gifer.com/PlA0.gif)
+
+
 lol get it? quic. Okay enough with the bad jokes. 
 	
 So you know that little lock icon 🔒  you see in your browser when you head to your favorite website? TLS has something to do with that. Essentially TLS ensures that whoever you want to talk to on the inter webs is who they say they are, This means if i'm going to hipstergram.com, TLS ensures that i am indeed browsing hipstergram.com and what ever I am talking to hipstergram about stays between us, this could be something like login details , password details which would traditionally be visible to someone who is on the same wifi network as me, this is why you get that warning from your browser when you are browsing websites using HTTP, AKA websites without a lock icon. And now you maybe wondering... How?
