@@ -1,0 +1,43 @@
+<!doctype html><html lang=en><meta charset=utf-8><meta name=generator content="Hugo 0.88.1"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name=color-scheme content="light dark">
+<meta name=supported-color-schemes content="light dark"><title>TLS in a Nutshell&nbsp;&ndash;&nbsp;$> cat /var/log/e770r</title><link rel=stylesheet href=/css/core.min.5b04986dee02f0d1305e9389c680a2eed3cea02c04640ac17d6643bacbc4b765d77e2b6e6b63b862d55560f00c92e9c0.css integrity=sha384-WwSYbe4C8NEwXpOJxoCi7tPOoCwEZArBfWZDusvEt2XXfitua2O4YtVVYPAMkunA><meta name=twitter:card content="summary">
+<meta name=twitter:title content="TLS in a Nutshell"><meta name=twitter:image content="https://media.gettyimages.com/photos/close-up-of-lock-and-metal-chain-picture-id84304606?s=612x612"><body><section id=header>
+<div class="header wrap"><span class="header left-side"><a class="site home" href=/><img class="site logo" src="https://avatars.githubusercontent.com/u/53065463?v=4" alt><span class="site name">$> cat /var/log/e770r</span></a></span>
+<span class="header right-side"><div class="nav wrap"><nav class=nav><a class="nav item" href=/categories/>Categories</a><a class="nav item" href=/tags/>Tags</a></nav></div></span></div><div class="site slogan"><span class=title>logging my experiences one blog at a time ~</span></div></section><section id=content><div class=article-container><section class="article header">
+<h1 class="article title">TLS in a Nutshell</h1><p class="article date">2021-10-06</p></section><article class="article markdown-body"><p><img class=cover src="https://media.gettyimages.com/photos/close-up-of-lock-and-metal-chain-picture-id84304606?s=612x612" alt></p><h1 id=tls-in-a-nutshell>TLS in a nutshell</h1>
+<p>So it&rsquo;s 1 am once again and I suddenly find myself questioning how the web works from the ground up(not even kidding this time), after roughly 30mins of re validating my knowledge, i have arrived at TLS whilst watching a nice talk by Daniel Stenberg, the author of curl,talk is over <a href="https://www.youtube.com/watch?v=pUxyukqoXR4" target=_blank rel="noopener noreferrer">here</a>
+btw
+. In this talk Daniel goes over how the web has evolved from HTTP/1.1 down to HTTP2
+and now HTTP 3 which is apparently going to save us all(no offense,i think <a href=https://en.wikipedia.org/wiki/QUIC target=_blank rel="noopener noreferrer">QUIC</a>
+) is an amazing protocol, but that&rsquo;s besides the point here.</p>
+<h2 id=so-what-is-my-point-here>So what is my point here?</h2>
+<p>well every so often I ask myself if I where to explain to someone would i really be able to do it? if the answer is no , then it&rsquo;s safe to say I don&rsquo;t know enough about said topic, which means I need to do more research or find a way to put words together so the other person can understand. And this was the case with TLS,
+whilst watching Daniel&rsquo;s presentation I honestly never thought about explaining TLS, I mean i&rsquo;ve tried once, but i&rsquo;m quite sure the other person understood only because he was a technical person and not because i did a good job. So now i attempt to explain TLS in as few words as possible.</p>
+<p><img src=https://i.gifer.com/PlA0.gif alt=quic>
+lol get it? quic. Okay enough with the bad jokes.</p>
+<p>So you know that little lock icon 🔒 you see in your browser when you head to your favorite website? TLS has something to do with that. Essentially TLS ensures that whoever you want to talk to on the inter webs is who they say they are, This means if i&rsquo;m going to hipstergram.com, TLS ensures that i am indeed browsing hipstergram.com and what ever I am talking to hipstergram about stays between us, this could be something like login details , password details which would traditionally be visible to someone who is on the same wifi network as me, this is why you get that warning from your browser when you are browsing websites using HTTP, AKA websites without a lock icon. And now you maybe wondering&mldr; How?
+<img src="https://media3.giphy.com/media/l4FGnHKwXZpdYu208/giphy.gif?cid=3640f6095bcf96f74f3847334945c030" alt=how></p>
+<p>To do this TLS uses a combination of symmetric and asymmetric encryption to secure the communication between you and hipstergram, in the case of symmetric encryption me and hipstergram both agree to encrypt our messages using a shared key that has been predetermined ahead of time and this is how we both communicate, but this has one obvious downside if a bad guy somehow finds this key, he can now see all the pictures of my cat i&rsquo;m uploading and possibly my login information if i&rsquo;m signing in at that time. So to solve this problem the first time you visit a webpage your browser verify the webpage using something called the SSL or TLS handshake(you might hear both being used, the main point being TLS is the newer version of SSL) , which is basically a short conversation between your browser and the website to be sure he is who he says he is, it goes a little something like this :</p>
+<p>Browser: hey, we need to talk but i&rsquo;ll only speak to you over a secure channel</p>
+<p>hipstergram.com: sure, i&rsquo;ll send you my TLS certificate along with my public key</p>
+<p>Browser: sure,let me verify that by asking the person who gave you this(certificate authority).</p>
+<p>Browser: Okay looks good, here&rsquo;s a symmetric encryption key(also called a session key) which you can use to decipher all the messages i send to you.</p>
+<p>hipstergram.com: sure!</p>
+<p>And now you can safely login and like picture of your favorite cat, without prying eyes.
+This took me way longer than it should have, because apparently explaining TLS is hard, there&rsquo;s usually too much detail that it becomes overwhelming on or too little that it&rsquo;s unsatisfactory, so i hope i did a decent job of striking a balance and hopefully you now know a lot more about transport layer security than when you came.</p>
+<h3 id=a-bit-more-technical-but-great-reads>A bit more technical but great reads</h3>
+<p>🤩 The original TLS specification: <a href=https://datatracker.ietf.org/doc/html/rfc2246#ref-XDR target=_blank rel="noopener noreferrer">https://datatracker.ietf.org/doc/html/rfc2246#ref-XDR</a>
+Obligatory Wikipedia reference: <a href=https://en.wikipedia.org/wiki/Transport_Layer_Security target=_blank rel="noopener noreferrer">https://en.wikipedia.org/wiki/Transport_Layer_Security</a>
+Little more on TLS handshakes: <a href=https://www.digicert.com/how-tls-ssl-certificates-work target=_blank rel="noopener noreferrer">https://www.digicert.com/how-tls-ssl-certificates-work</a>
+</p>
+</article><section class="article labels"><a class=tag href=/tags/http/>http</a><a class=tag href=/tags/web/>web</a><a class=tag href=/tags/internet/>internet</a></section><section class="article author"><img class=avatar src="https://avatars.githubusercontent.com/u/53065463?v=4" alt><p class=name>s1ntaxe770r</p><div class=details><a class=item href=https://github.com/s1ntaxe770r target=_blank rel="noopener noreferrer"><span class="iconfont icon-github"></span>&nbsp;s1ntaxe770r</a><a class=item href=https://hub.docker.com/u/e770r target=_blank rel="noopener noreferrer"><span class="iconfont icon-docker"></span>&nbsp;e770r</a><a class=item href=https://twitter.com/s1ntaxe770r target=_blank rel="noopener noreferrer"><span class="iconfont icon-twitter"></span>&nbsp;@s1ntaxe770r</a></div>
+</section>
+</div>
+<div class="article bottom"><section class="article navigation"><p><a class=link href=/posts/infra-automation-with-kubestack/><span class="iconfont icon-article"></span>Infrastructure Automation With Kubestack</a></p></section></div></section><section id=footer><div class=footer-wrap>
+<p class=copyright>©2021 s1ntaxe770r</p>
+<p class=powerby><span>Powered&nbsp;by&nbsp;</span><a href=https://gohugo.io target=_blank rel="noopener noreferrer">Hugo</a><span>&nbsp;&&nbsp;</span><a href=https://themes.gohugo.io/hugo-notepadium/ target=_blank rel="noopener noreferrer">Notepadium</a></p></div>
+</section>
+<script type=application/javascript>var doNotTrack=!1;doNotTrack||(window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga('create','G-D6NJ1ZKSX9','auto'),ga('send','pageview'))</script>
+<script async src=https://www.google-analytics.com/analytics.js></script>
+</body>
+</html>
