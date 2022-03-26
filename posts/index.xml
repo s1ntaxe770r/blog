@@ -1,4 +1,37 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on $> cat /var/log/e770r</title><link>https://log.jubril.me/posts/</link><description>Recent content in Posts on $> cat /var/log/e770r</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>©2021 s1ntaxe770r</copyright><lastBuildDate>Wed, 06 Oct 2021 02:37:19 +0100</lastBuildDate><atom:link href="https://log.jubril.me/posts/index.xml" rel="self" type="application/rss+xml"/><item><title>TLS in a Nutshell</title><link>https://log.jubril.me/posts/tls-in-a-nutshell/</link><pubDate>Wed, 06 Oct 2021 02:37:19 +0100</pubDate><guid>https://log.jubril.me/posts/tls-in-a-nutshell/</guid><description>&lt;h1 id="tls-in-a-nutshell">TLS in a nutshell&lt;/h1>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on $> cat /var/log/e770r</title><link>https://log.jubril.me/posts/</link><description>Recent content in Posts on $> cat /var/log/e770r</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>©2021 s1ntaxe770r</copyright><lastBuildDate>Sat, 26 Mar 2022 01:36:57 +0000</lastBuildDate><atom:link href="https://log.jubril.me/posts/index.xml" rel="self" type="application/rss+xml"/><item><title>Two phase commit ?</title><link>https://log.jubril.me/posts/2pc/</link><pubDate>Sat, 26 Mar 2022 01:36:57 +0000</pubDate><guid>https://log.jubril.me/posts/2pc/</guid><description>&lt;h2 id="two-phase-commit">Two phase commit?&lt;/h2>
+&lt;p>Lately I have found myself pondering how distributed systems handle transactions, particularly what happens if one database replica is out of sync, how should the &amp;ldquo;ideal&amp;rdquo; distributed system handle such?&lt;/p>
+&lt;p>Turns out there are few ways of handling distributed transactions, and two phase commit or 2PC is one of them. So I am doing the logical thing and writing down what I have managed to learn at 2:32am on a weekday.&lt;/p>
+&lt;h2 id="2pc-you-say--">2PC you say ?!&lt;/h2>
+&lt;p>&lt;img src="https://file.coffee/u/U4Ik7C5uGiHTBK.jpg"
+alt="wutt"/>&lt;/p>
+&lt;p>First I think it&amp;rsquo;s important to discuss what problem 2PC is trying to address before diving into how it solves it.&lt;/p>
+&lt;h2 id="the-problem">The problem&lt;/h2>
+&lt;p>When updating data across multiple nodes a prominent problem is nodes going out of sync or becoming inconsistent , so how do we ensure all nodes receive the same copy of data when update is performed?&lt;/p>
+&lt;h2 id="solution">Solution&lt;/h2>
+&lt;p>As the name suggests, two phase commit performs an update in two phases:&lt;/p>
+&lt;ul>
+&lt;li>Prepare phase&lt;/li>
+&lt;li>Commit phase&lt;/li>
+&lt;/ul>
+&lt;h4 id="prepare-phase">Prepare phase&lt;/h4>
+&lt;p>In this phase all participating nodes are asked if they are able to carry out the commit by the transaction coordinator, the transaction co-ordinator is responsible for ensuring all nodes are able to perform the commit , if one node is unable is unable to carry out the commit the transaction is rolled back and marked as unsuccessful.&lt;/p>
+&lt;h4 id="commit-phase">Commit phase&lt;/h4>
+&lt;p>The second phase begins once all participating nodes are able to perform the commit. Once the commit is performed each node sends a message to the transaction co-ordinator letting it know that operation has been completed, once all participating nodes respond with a success message the transaction is marked as complete and the commit phase ends.&lt;/p>
+&lt;h3 id="closing-thoughts">Closing thoughts&lt;/h3>
+&lt;p>Obviously this was a high level overview of what 2pc is and I do not go into specifics of how 2pc works, but I think thats ok. At the beginning of this post I had no clue what two phase commit was, I&amp;rsquo;d say this is a decent explanation for anyone who isn&amp;rsquo;t concerned with the fine details and just wants to answer the burning question WTF is 2pc.&lt;/p>
+&lt;p>But if you&amp;rsquo;d like to know more here are some relevant links I found while researching this:&lt;/p>
+&lt;p>From Martin Fowler
+&lt;a href="https://martinfowler.com/articles/patterns-of-distributed-systems/two-phase-commit.html#solution"target="_blank" rel="noopener noreferrer">https://martinfowler.com/articles/patterns-of-distributed-systems/two-phase-commit.html#solution&lt;/a>
+&lt;/p>
+&lt;p>Obligatory wikipedia reference
+&lt;a href="https://en.wikipedia.org/wiki/Two-phase_commit_protocol"target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Two-phase_commit_protocol&lt;/a>
+&lt;/p>
+&lt;p>This blog I found
+&lt;a href="https://www.techopedia.com/definition/1252/two-phase-commit"target="_blank" rel="noopener noreferrer">https://www.techopedia.com/definition/1252/two-phase-commit&lt;/a>
+&lt;/p>
+&lt;p>Not as comprehensive but helpful
+&lt;a href="https://www.educative.io/edpresso/what-is-the-two-phase-commit-protocol"target="_blank" rel="noopener noreferrer">https://www.educative.io/edpresso/what-is-the-two-phase-commit-protocol&lt;/a>
+&lt;/p></description></item><item><title>TLS in a Nutshell</title><link>https://log.jubril.me/posts/tls-in-a-nutshell/</link><pubDate>Wed, 06 Oct 2021 02:37:19 +0100</pubDate><guid>https://log.jubril.me/posts/tls-in-a-nutshell/</guid><description>&lt;h1 id="tls-in-a-nutshell">TLS in a nutshell&lt;/h1>
 &lt;p>So it&amp;rsquo;s 1 am once again and I suddenly find myself questioning how the web works from the ground up(not even kidding this time), after roughly 30mins of re validating my knowledge, i have arrived at TLS whilst watching a nice talk by Daniel Stenberg, the author of curl,talk is over &lt;a href="https://www.youtube.com/watch?v=pUxyukqoXR4"target="_blank" rel="noopener noreferrer">here&lt;/a>
 btw
 . In this talk Daniel goes over how the web has evolved from HTTP/1.1 down to HTTP2
