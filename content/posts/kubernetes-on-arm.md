@@ -1,8 +1,8 @@
 ---
 title: "Kubernetes on ARM"
-date: 2022-21-08T02:37:19+01:00
+date: 2022-08-21
 draft: false
-cover: https://file.coffee/u/rOjz_pfKQGiLuptFH4B4g.jpg
+# cover: https://file.coffee/u/rOjz_pfKQGiLuptFH4B4g.jpg
 tags: [kubernetes,ARM,Raspberry PI]
 ---
 
