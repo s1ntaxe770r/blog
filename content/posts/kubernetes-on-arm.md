@@ -1,16 +1,25 @@
+---
+title: "Kubernetes on ARM"
+date: 2022-21-08T02:37:19+01:00
+draft: false
+cover: https://file.coffee/u/rOjz_pfKQGiLuptFH4B4g.jpg
+tags: [kubernetes,ARM,Raspberry PI]
+---
+
+
 # Kubernetes on ARM
 
 It’s a nice Tuesday morning, the sun is out and I have had my first cup of coffee, what a lovely time to attempt to install Kubernetes on my Raspberry Pi.
 
 I’m using the Raspberry Pi 4 with a 128GB SD card running [Raspbian](https://www.raspbian.org/). Would this be enough? No idea but I’m about to find out.
 
-![lets-go-the-rock.gif](Kubernetes%20on%20ARM%200e009dbeaab34051952bd5f37cc78c7f/lets-go-the-rock.gif)
+![lets-go-the-rock.gif](https://file.coffee/u/zgvZ35YWTfDlHxtAc8ZlP.gif)
 
 ## Current Setup
 
 So far the only configuration I have made is assigning a static IP address and connected the PI to my router over Ethernet. 
 
-![current setup ](Kubernetes%20on%20ARM%200e009dbeaab34051952bd5f37cc78c7f/20220503_105557.jpg)
+![current setup ](https://file.coffee/u/rOjz_pfKQGiLuptFH4B4g.jpg)
 
 current setup 
 
@@ -30,7 +39,7 @@ But here’s the thing. I don’t always like being “logical” and something 
 
 ### I give you K0s !!!
 
-![Untitled](Kubernetes%20on%20ARM%200e009dbeaab34051952bd5f37cc78c7f/Untitled.png)
+![Untitled](https://file.coffee/u/Dft7Bepe4nxKGBKG-M_xQ.png)
 
 K0s advertises itself as a “**The Zero Friction Kubernetes”,** obviously this is not what I am here for, I could sit here and re-word every feature on the k0s homepage but I don’t have time for that today,  However, there are a few features I really like. 
 
@@ -46,17 +55,17 @@ After combing the docs for several ~~days~~ hours I finally realize why the cont
 
 Well that worked so I should have a working cluster right ? 
 
-![sddefault.jpg](Kubernetes%20on%20ARM%200e009dbeaab34051952bd5f37cc78c7f/sddefault.jpg)
+![sddefault.jpg](https://file.coffee/u/hgDvJrZlYZJVFCH2zth04.jpg)
 
 After running `k0s start` I decide to watch the journalctl logs , which doesn’t sound like a bad idea at first , however I was met with some horrible node errors and at some point [coreDNS](https://coredns.io) refused to start. A solid 10 minutes go by and the node errors seemed to have resolved itself and coreDNS seemed to have initialized , but I still see some “partial failures” in the logs and I decide to wait it out a little longer.
 
-![journalctl logs ](Kubernetes%20on%20ARM%200e009dbeaab34051952bd5f37cc78c7f/Untitled%201.png)
+![journalctl logs ](https://file.coffee/u/8F-dh7uQ-oTdOfzk9ovsp.png)
 
 journalctl logs 
 
 Eventually I take the leap of faith and run `kubectl get nodes` …. 
 
-![Untitled](Kubernetes%20on%20ARM%200e009dbeaab34051952bd5f37cc78c7f/Untitled%202.png)
+![Untitled](https://file.coffee/u/PjjdAv6xpK_hbTqQnn8uu.png)
 
 ```bash
 NAME      STATUS   ROLES           AGE    VERSION
@@ -71,15 +80,15 @@ Ever since I learned about ingress controllers I have always stuck with Nginx be
 
 ## Reality strikes
 
-![6qj1by.jpg](Kubernetes%20on%20ARM%200e009dbeaab34051952bd5f37cc78c7f/6qj1by.jpg)
+![6qj1by.jpg](https://file.coffee/u/Og352mDPI2qTK6eyFinVp.jpg)
 
 Sadly this turned out to be the case and for whatever reason my pods where not getting an external IP. Tried a googling but I am honestly not ready to battle with my crappy router and get this thing working. So I did the sane thing a defaulted to Nginx which worked flawlessly.
 
-![Untitled](Kubernetes%20on%20ARM%200e009dbeaab34051952bd5f37cc78c7f/Untitled%203.png)
+![Untitled](https://file.coffee/u/itriWVFHPt0MVliz2C6il.png)
 
 Ah yes sweet sweet 404 , but this wouldn’t be complete without a “simple https server” would it? 
 
-![Untitled](Kubernetes%20on%20ARM%200e009dbeaab34051952bd5f37cc78c7f/Untitled%204.png)
+![Untitled](https://file.coffee/u/ue1a6TuQq12PF-GkkIdVL.png)
 
 ## Conclusion
 
