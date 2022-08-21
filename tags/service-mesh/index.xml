@@ -1,4 +1,70 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>service mesh on $> cat /var/log/e770r</title><link>https://log.jubril.me/tags/service-mesh/</link><description>Recent content in service mesh on $> cat /var/log/e770r</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>©2021 s1ntaxe770r</copyright><lastBuildDate>Wed, 12 May 2021 12:49:07 +0100</lastBuildDate><atom:link href="https://log.jubril.me/tags/service-mesh/index.xml" rel="self" type="application/rss+xml"/><item><title>Two phase commit ?</title><link>https://log.jubril.me/posts/2pc/</link><pubDate>Sat, 26 Mar 2022 01:36:57 +0000</pubDate><guid>https://log.jubril.me/posts/2pc/</guid><description>&lt;h2 id="two-phase-commit">Two phase commit?&lt;/h2>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>service mesh on $> cat /var/log/e770r</title><link>https://log.jubril.me/tags/service-mesh/</link><description>Recent content in service mesh on $> cat /var/log/e770r</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>©2021 s1ntaxe770r</copyright><lastBuildDate>Wed, 12 May 2021 12:49:07 +0100</lastBuildDate><atom:link href="https://log.jubril.me/tags/service-mesh/index.xml" rel="self" type="application/rss+xml"/><item><title>Kubernetes on ARM</title><link>https://log.jubril.me/posts/kubernetes-on-arm/</link><pubDate>Sun, 21 Aug 2022 00:00:00 +0000</pubDate><guid>https://log.jubril.me/posts/kubernetes-on-arm/</guid><description>&lt;h1 id="kubernetes-on-arm">Kubernetes on ARM&lt;/h1>
+&lt;p>It’s a nice Tuesday morning, the sun is out and I have had my first cup of coffee, what a lovely time to attempt to install Kubernetes on my Raspberry Pi.&lt;/p>
+&lt;p>I’m using the Raspberry Pi 4 with a 128GB SD card running &lt;a href="https://www.raspbian.org/"target="_blank" rel="noopener noreferrer">Raspbian&lt;/a>
+. Would this be enough? No idea but I’m about to find out.&lt;/p>
+&lt;p>&lt;img src="https://file.coffee/u/zgvZ35YWTfDlHxtAc8ZlP.gif"
+alt="lets-go-the-rock.gif"/>&lt;/p>
+&lt;h2 id="current-setup">Current Setup&lt;/h2>
+&lt;p>So far the only configuration I have made is assigning a static IP address and connected the PI to my router over Ethernet.&lt;/p>
+&lt;p>&lt;img src="https://file.coffee/u/rOjz_pfKQGiLuptFH4B4g.jpg"
+alt="current setup "/>&lt;/p>
+&lt;p>current setup&lt;/p>
+&lt;h2 id="kubernetes-distributions">Kubernetes Distributions&lt;/h2>
+&lt;p>Much Like Ice-Cream Kubernetes comes in different flavors picking the right combination would be key to how well this works ( so I think). Here are a few I evaluated.&lt;/p>
+&lt;h3 id="kindhttpskindsigsk8sio-kubernetes-in-docker">&lt;a href="https://kind.sigs.k8s.io/"target="_blank" rel="noopener noreferrer">KinD&lt;/a>
+(Kubernetes in Docker)&lt;/h3>
+&lt;p>KinD is a tool for running Kubernetes in Docker, it’s lightweight and works well. I use it for testing stuff on my Mac. But where’s the fun in Installing docker and calling it a day?. I’m not looking to do &lt;a href="https://github.com/kelseyhightower/kubernetes-the-hard-way"target="_blank" rel="noopener noreferrer">Kubernetes the hard way&lt;/a>
+but I want some resistance. For this reason, I would not be picking KinD.&lt;/p>
+&lt;h3 id="but-what-about-k3shttpsk3sio">&lt;a href="https://k3s.io/"target="_blank" rel="noopener noreferrer">But what about K3s?&lt;/a>
+&lt;/h3>
+&lt;p>K3s has a reputation for being lightweight and super fast. Promising a 30sec startup time along with being optimized for ARM. It is a very logical choice for my use case.&lt;/p>
+&lt;p>But here’s the thing. I don’t always like being “logical” and something about the next distribution screams INSTALL to me.&lt;/p>
+&lt;h3 id="i-give-you-k0s-">I give you K0s !!!&lt;/h3>
+&lt;p>&lt;img src="https://file.coffee/u/Dft7Bepe4nxKGBKG-M_xQ.png"
+alt="Untitled"/>&lt;/p>
+&lt;p>K0s advertises itself as a “&lt;strong>The Zero Friction Kubernetes”,&lt;/strong> obviously this is not what I am here for, I could sit here and re-word every feature on the k0s homepage but I don’t have time for that today, However, there are a few features I really like.&lt;/p>
+&lt;ol>
+&lt;li>In-Cluster SQLite: this is the default for single-node clusters, this is probably not as performant as ETCD but I’m not trying to &lt;a href="https://github.com/rancher/docs/issues/3134"target="_blank" rel="noopener noreferrer">destroy my SD&lt;/a>
+(prematurely).&lt;/li>
+&lt;li>Horizontal Pod Autoscaling: In case I need to scale my home network to handle traffic from a thousand users 🤣.&lt;/li>
+&lt;/ol>
+&lt;p>The features I mentioned most likely exist on k3s but like I said something in me really wants to give k0s a shot.&lt;/p>
+&lt;p>After combing the docs for several &lt;del>days&lt;/del> hours I finally realize why the controller has refused to start. I was doing two things wrong:&lt;/p>
+&lt;ul>
+&lt;li>I was using the installation instructions for Debian machines and k0s had &lt;a href="https://docs.k0sproject.io/v1.24.3&amp;#43;k0s.0/raspberry-pi4/"target="_blank" rel="noopener noreferrer">instructions&lt;/a>
+for the raspberry pi all along 🤦🏽.&lt;/li>
+&lt;li>Needed to enable &lt;code>cgroups&lt;/code> on the pi and a few other &lt;a href="https://docs.k0sproject.io/v1.24.3&amp;#43;k0s.0/raspberry-pi4/#set-up-nodes"target="_blank" rel="noopener noreferrer">options&lt;/a>
+and reboot the PI.&lt;/li>
+&lt;/ul>
+&lt;p>Well that worked so I should have a working cluster right ?&lt;/p>
+&lt;p>&lt;img src="https://file.coffee/u/hgDvJrZlYZJVFCH2zth04.jpg"
+alt="sddefault.jpg"/>&lt;/p>
+&lt;p>After running &lt;code>k0s start&lt;/code> I decide to watch the journalctl logs , which doesn’t sound like a bad idea at first , however I was met with some horrible node errors and at some point &lt;a href="https://coredns.io"target="_blank" rel="noopener noreferrer">coreDNS&lt;/a>
+refused to start. A solid 10 minutes go by and the node errors seemed to have resolved itself and coreDNS seemed to have initialized , but I still see some “partial failures” in the logs and I decide to wait it out a little longer.&lt;/p>
+&lt;p>&lt;img src="https://file.coffee/u/8F-dh7uQ-oTdOfzk9ovsp.png"
+alt="journalctl logs "/>&lt;/p>
+&lt;p>journalctl logs&lt;/p>
+&lt;p>Eventually I take the leap of faith and run &lt;code>kubectl get nodes&lt;/code> ….&lt;/p>
+&lt;p>&lt;img src="https://file.coffee/u/PjjdAv6xpK_hbTqQnn8uu.png"
+alt="Untitled"/>&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>NAME STATUS ROLES AGE VERSION
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>thev01d Ready control-plane 23m v1.23.6+k0s
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>The node is finally ready , well Mission accomplished right ? Not quite I still need a load balancer that I can use to expose my applications, I’ve heard good things about MetalLB so I would be trying that first. Thankfully k0s has a &lt;a href="https://docs.k0sproject.io/v1.23.6&amp;#43;k0s.2/examples/metallb-loadbalancer/"target="_blank" rel="noopener noreferrer">dedicated pag&lt;/a>
+e for MetalLB.&lt;/p>
+&lt;h2 id="what-about-nginx-ingress-controller-">What about Nginx Ingress controller ?&lt;/h2>
+&lt;p>Ever since I learned about ingress controllers I have always stuck with Nginx because it simple and gives me the least headaches(staring at you traefik) plus A/B testing is super easy with Nginx. The problem here is I don’t really need the routing capabilities of Nginx ingress , here all I need is a single static IP I can access my services on and MetalLB seems to do that.&lt;/p>
+&lt;h2 id="reality-strikes">Reality strikes&lt;/h2>
+&lt;p>&lt;img src="https://file.coffee/u/Og352mDPI2qTK6eyFinVp.jpg"
+alt="6qj1by.jpg"/>&lt;/p>
+&lt;p>Sadly this turned out to be the case and for whatever reason my pods where not getting an external IP. Tried a googling but I am honestly not ready to battle with my crappy router and get this thing working. So I did the sane thing a defaulted to Nginx which worked flawlessly.&lt;/p>
+&lt;p>&lt;img src="https://file.coffee/u/itriWVFHPt0MVliz2C6il.png"
+alt="Untitled"/>&lt;/p>
+&lt;p>Ah yes sweet sweet 404 , but this wouldn’t be complete without a “simple https server” would it?&lt;/p>
+&lt;p>&lt;img src="https://file.coffee/u/ue1a6TuQq12PF-GkkIdVL.png"
+alt="Untitled"/>&lt;/p>
+&lt;h2 id="conclusion">Conclusion&lt;/h2>
+&lt;p>Overall this was a great learning experience , I got to learn about different Kubernetes components and how they interact with one another. Also ran into an issue where my PI refused to connect to my router because the power supply was not enough, this got me thinking about what goes on in the average datacenter and how routers can fail ( mine did) and host of other problems that the modern day cloud abstracts from users.&lt;/p>
+&lt;p>If you made it this far thanks for reading , I hope to blog more about hardware and other PI projects is decide to make in the near future , until then goodbye and keep chewing!&lt;/p></description></item><item><title>Two phase commit ?</title><link>https://log.jubril.me/posts/2pc/</link><pubDate>Sat, 26 Mar 2022 01:36:57 +0000</pubDate><guid>https://log.jubril.me/posts/2pc/</guid><description>&lt;h2 id="two-phase-commit">Two phase commit?&lt;/h2>
 &lt;p>Lately I have found myself pondering how distributed systems handle transactions, particularly what happens if one database replica is out of sync, how should the &amp;ldquo;ideal&amp;rdquo; distributed system handle such?&lt;/p>
 &lt;p>Turns out there are few ways of handling distributed transactions, and two phase commit or 2PC is one of them. So I am doing the logical thing and writing down what I have managed to learn at 2:32am on a weekday.&lt;/p>
 &lt;h2 id="2pc-you-say--">2PC you say ?!&lt;/h2>
@@ -126,70 +192,4 @@ alt="istio architecture"/>&lt;/span>&lt;span class="caption">&lt;span class="tit
 , &lt;a href="https://nginx.com"target="_blank" rel="noopener noreferrer">Nginx&lt;/a>
 , &lt;a href="https://traefik.io/"target="_blank" rel="noopener noreferrer">Traefik&lt;/a>
 .&lt;/p></description></item><item><title>First Post</title><link>https://log.jubril.me/posts/first-post/</link><pubDate>Mon, 26 Apr 2021 15:38:07 +0100</pubDate><guid>https://log.jubril.me/posts/first-post/</guid><description>&lt;h1 id="wow-it-works">Wow it works&lt;/h1>
-&lt;p>Hello world&lt;/p></description></item><item><title>Kubernetes on ARM</title><link>https://log.jubril.me/posts/kubernetes-on-arm/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://log.jubril.me/posts/kubernetes-on-arm/</guid><description>&lt;h1 id="kubernetes-on-arm">Kubernetes on ARM&lt;/h1>
-&lt;p>It’s a nice Tuesday morning, the sun is out and I have had my first cup of coffee, what a lovely time to attempt to install Kubernetes on my Raspberry Pi.&lt;/p>
-&lt;p>I’m using the Raspberry Pi 4 with a 128GB SD card running &lt;a href="https://www.raspbian.org/"target="_blank" rel="noopener noreferrer">Raspbian&lt;/a>
-. Would this be enough? No idea but I’m about to find out.&lt;/p>
-&lt;p>&lt;img src="https://file.coffee/u/zgvZ35YWTfDlHxtAc8ZlP.gif"
-alt="lets-go-the-rock.gif"/>&lt;/p>
-&lt;h2 id="current-setup">Current Setup&lt;/h2>
-&lt;p>So far the only configuration I have made is assigning a static IP address and connected the PI to my router over Ethernet.&lt;/p>
-&lt;p>&lt;img src="https://file.coffee/u/rOjz_pfKQGiLuptFH4B4g.jpg"
-alt="current setup "/>&lt;/p>
-&lt;p>current setup&lt;/p>
-&lt;h2 id="kubernetes-distributions">Kubernetes Distributions&lt;/h2>
-&lt;p>Much Like Ice-Cream Kubernetes comes in different flavors picking the right combination would be key to how well this works ( so I think). Here are a few I evaluated.&lt;/p>
-&lt;h3 id="kindhttpskindsigsk8sio-kubernetes-in-docker">&lt;a href="https://kind.sigs.k8s.io/"target="_blank" rel="noopener noreferrer">KinD&lt;/a>
-(Kubernetes in Docker)&lt;/h3>
-&lt;p>KinD is a tool for running Kubernetes in Docker, it’s lightweight and works well. I use it for testing stuff on my Mac. But where’s the fun in Installing docker and calling it a day?. I’m not looking to do &lt;a href="https://github.com/kelseyhightower/kubernetes-the-hard-way"target="_blank" rel="noopener noreferrer">Kubernetes the hard way&lt;/a>
-but I want some resistance. For this reason, I would not be picking KinD.&lt;/p>
-&lt;h3 id="but-what-about-k3shttpsk3sio">&lt;a href="https://k3s.io/"target="_blank" rel="noopener noreferrer">But what about K3s?&lt;/a>
-&lt;/h3>
-&lt;p>K3s has a reputation for being lightweight and super fast. Promising a 30sec startup time along with being optimized for ARM. It is a very logical choice for my use case.&lt;/p>
-&lt;p>But here’s the thing. I don’t always like being “logical” and something about the next distribution screams INSTALL to me.&lt;/p>
-&lt;h3 id="i-give-you-k0s-">I give you K0s !!!&lt;/h3>
-&lt;p>&lt;img src="https://file.coffee/u/Dft7Bepe4nxKGBKG-M_xQ.png"
-alt="Untitled"/>&lt;/p>
-&lt;p>K0s advertises itself as a “&lt;strong>The Zero Friction Kubernetes”,&lt;/strong> obviously this is not what I am here for, I could sit here and re-word every feature on the k0s homepage but I don’t have time for that today, However, there are a few features I really like.&lt;/p>
-&lt;ol>
-&lt;li>In-Cluster SQLite: this is the default for single-node clusters, this is probably not as performant as ETCD but I’m not trying to &lt;a href="https://github.com/rancher/docs/issues/3134"target="_blank" rel="noopener noreferrer">destroy my SD&lt;/a>
-(prematurely).&lt;/li>
-&lt;li>Horizontal Pod Autoscaling: In case I need to scale my home network to handle traffic from a thousand users 🤣.&lt;/li>
-&lt;/ol>
-&lt;p>The features I mentioned most likely exist on k3s but like I said something in me really wants to give k0s a shot.&lt;/p>
-&lt;p>After combing the docs for several &lt;del>days&lt;/del> hours I finally realize why the controller has refused to start. I was doing two things wrong:&lt;/p>
-&lt;ul>
-&lt;li>I was using the installation instructions for Debian machines and k0s had &lt;a href="https://docs.k0sproject.io/v1.24.3&amp;#43;k0s.0/raspberry-pi4/"target="_blank" rel="noopener noreferrer">instructions&lt;/a>
-for the raspberry pi all along 🤦🏽.&lt;/li>
-&lt;li>Needed to enable &lt;code>cgroups&lt;/code> on the pi and a few other &lt;a href="https://docs.k0sproject.io/v1.24.3&amp;#43;k0s.0/raspberry-pi4/#set-up-nodes"target="_blank" rel="noopener noreferrer">options&lt;/a>
-and reboot the PI.&lt;/li>
-&lt;/ul>
-&lt;p>Well that worked so I should have a working cluster right ?&lt;/p>
-&lt;p>&lt;img src="https://file.coffee/u/hgDvJrZlYZJVFCH2zth04.jpg"
-alt="sddefault.jpg"/>&lt;/p>
-&lt;p>After running &lt;code>k0s start&lt;/code> I decide to watch the journalctl logs , which doesn’t sound like a bad idea at first , however I was met with some horrible node errors and at some point &lt;a href="https://coredns.io"target="_blank" rel="noopener noreferrer">coreDNS&lt;/a>
-refused to start. A solid 10 minutes go by and the node errors seemed to have resolved itself and coreDNS seemed to have initialized , but I still see some “partial failures” in the logs and I decide to wait it out a little longer.&lt;/p>
-&lt;p>&lt;img src="https://file.coffee/u/8F-dh7uQ-oTdOfzk9ovsp.png"
-alt="journalctl logs "/>&lt;/p>
-&lt;p>journalctl logs&lt;/p>
-&lt;p>Eventually I take the leap of faith and run &lt;code>kubectl get nodes&lt;/code> ….&lt;/p>
-&lt;p>&lt;img src="https://file.coffee/u/PjjdAv6xpK_hbTqQnn8uu.png"
-alt="Untitled"/>&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>NAME STATUS ROLES AGE VERSION
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>thev01d Ready control-plane 23m v1.23.6+k0s
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>The node is finally ready , well Mission accomplished right ? Not quite I still need a load balancer that I can use to expose my applications, I’ve heard good things about MetalLB so I would be trying that first. Thankfully k0s has a &lt;a href="https://docs.k0sproject.io/v1.23.6&amp;#43;k0s.2/examples/metallb-loadbalancer/"target="_blank" rel="noopener noreferrer">dedicated pag&lt;/a>
-e for MetalLB.&lt;/p>
-&lt;h2 id="what-about-nginx-ingress-controller-">What about Nginx Ingress controller ?&lt;/h2>
-&lt;p>Ever since I learned about ingress controllers I have always stuck with Nginx because it simple and gives me the least headaches(staring at you traefik) plus A/B testing is super easy with Nginx. The problem here is I don’t really need the routing capabilities of Nginx ingress , here all I need is a single static IP I can access my services on and MetalLB seems to do that.&lt;/p>
-&lt;h2 id="reality-strikes">Reality strikes&lt;/h2>
-&lt;p>&lt;img src="https://file.coffee/u/Og352mDPI2qTK6eyFinVp.jpg"
-alt="6qj1by.jpg"/>&lt;/p>
-&lt;p>Sadly this turned out to be the case and for whatever reason my pods where not getting an external IP. Tried a googling but I am honestly not ready to battle with my crappy router and get this thing working. So I did the sane thing a defaulted to Nginx which worked flawlessly.&lt;/p>
-&lt;p>&lt;img src="https://file.coffee/u/itriWVFHPt0MVliz2C6il.png"
-alt="Untitled"/>&lt;/p>
-&lt;p>Ah yes sweet sweet 404 , but this wouldn’t be complete without a “simple https server” would it?&lt;/p>
-&lt;p>&lt;img src="https://file.coffee/u/ue1a6TuQq12PF-GkkIdVL.png"
-alt="Untitled"/>&lt;/p>
-&lt;h2 id="conclusion">Conclusion&lt;/h2>
-&lt;p>Overall this was a great learning experience , I got to learn about different Kubernetes components and how they interact with one another. Also ran into an issue where my PI refused to connect to my router because the power supply was not enough, this got me thinking about what goes on in the average datacenter and how routers can fail ( mine did) and host of other problems that the modern day cloud abstracts from users.&lt;/p>
-&lt;p>If you made it this far thanks for reading , I hope to blog more about hardware and other PI projects is decide to make in the near future , until then goodbye and keep chewing!&lt;/p></description></item></channel></rss>
+&lt;p>Hello world&lt;/p></description></item></channel></rss>
