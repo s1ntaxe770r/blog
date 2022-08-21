@@ -6,7 +6,6 @@ draft: false
 tags: [kubernetes,ARM,Raspberry PI]
 ---
 
-
 # Kubernetes on ARM
 
 It’s a nice Tuesday morning, the sun is out and I have had my first cup of coffee, what a lovely time to attempt to install Kubernetes on my Raspberry Pi.
