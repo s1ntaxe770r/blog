@@ -1,0 +1,195 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>ARM on $> cat /var/log/e770r</title><link>https://log.jubril.me/tags/arm/</link><description>Recent content in ARM on $> cat /var/log/e770r</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>©2021 s1ntaxe770r</copyright><atom:link href="https://log.jubril.me/tags/arm/index.xml" rel="self" type="application/rss+xml"/><item><title>Two phase commit ?</title><link>https://log.jubril.me/posts/2pc/</link><pubDate>Sat, 26 Mar 2022 01:36:57 +0000</pubDate><guid>https://log.jubril.me/posts/2pc/</guid><description>&lt;h2 id="two-phase-commit">Two phase commit?&lt;/h2>
+&lt;p>Lately I have found myself pondering how distributed systems handle transactions, particularly what happens if one database replica is out of sync, how should the &amp;ldquo;ideal&amp;rdquo; distributed system handle such?&lt;/p>
+&lt;p>Turns out there are few ways of handling distributed transactions, and two phase commit or 2PC is one of them. So I am doing the logical thing and writing down what I have managed to learn at 2:32am on a weekday.&lt;/p>
+&lt;h2 id="2pc-you-say--">2PC you say ?!&lt;/h2>
+&lt;p>&lt;img src="https://file.coffee/u/U4Ik7C5uGiHTBK.jpg"
+alt="wutt"/>&lt;/p>
+&lt;p>First I think it&amp;rsquo;s important to discuss what problem 2PC is trying to address before diving into how it solves it.&lt;/p>
+&lt;h2 id="the-problem">The problem&lt;/h2>
+&lt;p>When updating data across multiple nodes a prominent problem is nodes going out of sync or becoming inconsistent , so how do we ensure all nodes receive the same copy of data when update is performed?&lt;/p>
+&lt;h2 id="solution">Solution&lt;/h2>
+&lt;p>As the name suggests, two phase commit performs an update in two phases:&lt;/p>
+&lt;ul>
+&lt;li>Prepare phase&lt;/li>
+&lt;li>Commit phase&lt;/li>
+&lt;/ul>
+&lt;h4 id="prepare-phase">Prepare phase&lt;/h4>
+&lt;p>In this phase all participating nodes are asked if they are able to carry out the commit by the transaction coordinator, the transaction co-ordinator is responsible for ensuring all nodes are able to perform the commit , if one node is unable is unable to carry out the commit the transaction is rolled back and marked as unsuccessful.&lt;/p>
+&lt;h4 id="commit-phase">Commit phase&lt;/h4>
+&lt;p>The second phase begins once all participating nodes are able to perform the commit. Once the commit is performed each node sends a message to the transaction co-ordinator letting it know that operation has been completed, once all participating nodes respond with a success message the transaction is marked as complete and the commit phase ends.&lt;/p>
+&lt;h3 id="closing-thoughts">Closing thoughts&lt;/h3>
+&lt;p>Obviously this was a high level overview of what 2pc is and I do not go into specifics of how 2pc works, but I think thats ok. At the beginning of this post I had no clue what two phase commit was, I&amp;rsquo;d say this is a decent explanation for anyone who isn&amp;rsquo;t concerned with the fine details and just wants to answer the burning question WTF is 2pc.&lt;/p>
+&lt;p>But if you&amp;rsquo;d like to know more here are some relevant links I found while researching this:&lt;/p>
+&lt;p>From Martin Fowler
+&lt;a href="https://martinfowler.com/articles/patterns-of-distributed-systems/two-phase-commit.html#solution"target="_blank" rel="noopener noreferrer">https://martinfowler.com/articles/patterns-of-distributed-systems/two-phase-commit.html#solution&lt;/a>
+&lt;/p>
+&lt;p>Obligatory wikipedia reference
+&lt;a href="https://en.wikipedia.org/wiki/Two-phase_commit_protocol"target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Two-phase_commit_protocol&lt;/a>
+&lt;/p>
+&lt;p>This blog I found
+&lt;a href="https://www.techopedia.com/definition/1252/two-phase-commit"target="_blank" rel="noopener noreferrer">https://www.techopedia.com/definition/1252/two-phase-commit&lt;/a>
+&lt;/p>
+&lt;p>Not as comprehensive but helpful
+&lt;a href="https://www.educative.io/edpresso/what-is-the-two-phase-commit-protocol"target="_blank" rel="noopener noreferrer">https://www.educative.io/edpresso/what-is-the-two-phase-commit-protocol&lt;/a>
+&lt;/p></description></item><item><title>TLS in a Nutshell</title><link>https://log.jubril.me/posts/tls-in-a-nutshell/</link><pubDate>Wed, 06 Oct 2021 02:37:19 +0100</pubDate><guid>https://log.jubril.me/posts/tls-in-a-nutshell/</guid><description>&lt;h1 id="tls-in-a-nutshell">TLS in a nutshell&lt;/h1>
+&lt;p>So it&amp;rsquo;s 1 am once again and I suddenly find myself questioning how the web works from the ground up(not even kidding this time), after roughly 30mins of re validating my knowledge, i have arrived at TLS whilst watching a nice talk by Daniel Stenberg, the author of curl,talk is over &lt;a href="https://www.youtube.com/watch?v=pUxyukqoXR4"target="_blank" rel="noopener noreferrer">here&lt;/a>
+btw
+. In this talk Daniel goes over how the web has evolved from HTTP/1.1 down to HTTP2
+and now HTTP 3 which is apparently going to save us all(no offense,i think &lt;a href="https://en.wikipedia.org/wiki/QUIC"target="_blank" rel="noopener noreferrer">QUIC&lt;/a>
+) is an amazing protocol, but that&amp;rsquo;s besides the point here.&lt;/p>
+&lt;h2 id="so-what-is-my-point-here">So what is my point here?&lt;/h2>
+&lt;p>well every so often I ask myself if I where to explain &lt;!-- raw HTML omitted --> to someone would i really be able to do it? if the answer is no , then it&amp;rsquo;s safe to say I don&amp;rsquo;t know enough about said topic, which means I need to do more research or find a way to put words together so the other person can understand. And this was the case with TLS,
+whilst watching Daniel&amp;rsquo;s presentation I honestly never thought about explaining TLS, I mean i&amp;rsquo;ve tried once, but i&amp;rsquo;m quite sure the other person understood only because he was a technical person and not because i did a good job. So now i attempt to explain TLS in as few words as possible.&lt;/p>
+&lt;p>&lt;img src="https://i.gifer.com/PlA0.gif"
+alt="quic"/>&lt;/p>
+&lt;p>lol get it? quic. Okay enough with the bad jokes.&lt;/p>
+&lt;p>So you know that little lock icon 🔒 you see in your browser when you head to your favorite website? TLS has something to do with that. Essentially TLS ensures that whoever you want to talk to on the inter webs is who they say they are, This means if i&amp;rsquo;m going to hipstergram.com, TLS ensures that i am indeed browsing hipstergram.com and what ever I am talking to hipstergram about stays between us, this could be something like login details , password details which would traditionally be visible to someone who is on the same wifi network as me, this is why you get that warning from your browser when you are browsing websites using HTTP, AKA websites without a lock icon. And now you maybe wondering&amp;hellip; How?
+&lt;img src="https://media3.giphy.com/media/l4FGnHKwXZpdYu208/giphy.gif?cid=3640f6095bcf96f74f3847334945c030"
+alt="how"/>&lt;/p>
+&lt;p>To do this TLS uses a combination of symmetric and asymmetric encryption to secure the communication between you and hipstergram, in the case of symmetric encryption me and hipstergram both agree to encrypt our messages using a shared key that has been predetermined ahead of time and this is how we both communicate, but this has one obvious downside if a bad guy somehow finds this key, he can now see all the pictures of my cat i&amp;rsquo;m uploading and possibly my login information if i&amp;rsquo;m signing in at that time. So to solve this problem the first time you visit a webpage your browser verify the webpage using something called the SSL or TLS handshake(you might hear both being used, the main point being TLS is the newer version of SSL) , which is basically a short conversation between your browser and the website to be sure he is who he says he is, it goes a little something like this :&lt;/p>
+&lt;p>Browser: hey, we need to talk but i&amp;rsquo;ll only speak to you over a secure channel&lt;/p>
+&lt;p>hipstergram.com: sure, i&amp;rsquo;ll send you my TLS certificate along with my public key&lt;/p>
+&lt;p>Browser: sure,let me verify that by asking the person who gave you this(certificate authority).&lt;/p>
+&lt;p>Browser: Okay looks good, here&amp;rsquo;s a symmetric encryption key(also called a session key) which you can use to decipher all the messages i send to you.&lt;/p>
+&lt;p>hipstergram.com: sure!&lt;/p>
+&lt;p>And now you can safely login and like picture of your favorite cat, without prying eyes.
+This took me way longer than it should have, because apparently explaining TLS is hard, there&amp;rsquo;s usually too much detail that it becomes overwhelming on or too little that it&amp;rsquo;s unsatisfactory, so i hope i did a decent job of striking a balance and hopefully you now know a lot more about transport layer security than when you came.&lt;/p>
+&lt;h3 id="a-bit-more-technical-but-great-reads">A bit more technical but great reads&lt;/h3>
+&lt;p>🤩 The original TLS specification: &lt;a href="https://datatracker.ietf.org/doc/html/rfc2246#ref-XDR"target="_blank" rel="noopener noreferrer">https://datatracker.ietf.org/doc/html/rfc2246#ref-XDR&lt;/a>
+Obligatory Wikipedia reference: &lt;a href="https://en.wikipedia.org/wiki/Transport_Layer_Security"target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Transport_Layer_Security&lt;/a>
+Little more on TLS handshakes: &lt;a href="https://www.digicert.com/how-tls-ssl-certificates-work"target="_blank" rel="noopener noreferrer">https://www.digicert.com/how-tls-ssl-certificates-work&lt;/a>
+&lt;/p></description></item><item><title>Infrastructure Automation With Kubestack</title><link>https://log.jubril.me/posts/infra-automation-with-kubestack/</link><pubDate>Mon, 07 Jun 2021 19:15:43 +0100</pubDate><guid>https://log.jubril.me/posts/infra-automation-with-kubestack/</guid><description>&lt;h1 id="infrastructure-automation-with-kubestack">Infrastructure Automation with Kubestack&lt;/h1>
+&lt;p>Over the weekend I got to try out &lt;a href="https://kubestack.com"target="_blank" rel="noopener noreferrer">Kubestack&lt;/a>
+and in this post, I would be giving some of my thoughts on it.&lt;/p>
+&lt;p>FULL DISCLAIMER: while I am being paid to write this post the opinions and views expressed here are completely mines.&lt;/p>
+&lt;h2 id="so-whats-this-thing-anyway">So what&amp;rsquo;s this thing anyway?&lt;/h2>
+&lt;p>That was my first question as I have only ever heard about Kubestack in passing.&lt;/p>
+&lt;p>Kubestack is a &lt;a href="https://about.gitlab.com/topics/gitops/"target="_blank" rel="noopener noreferrer">GitOps&lt;/a>
+framework aimed at simplifying the process of spinning up a Kubernetes cluster and automating subsequent deployments to your cluster. At the time of writing, Kubestack supports GKE, AKS, and EKS. Alright, now I know what it is but how is this any different than building my own CI/CD pipeline? Only one way to find out&amp;hellip;&lt;/p>
+&lt;h2 id="getting-started">Getting started&lt;/h2>
+&lt;p>Before this, I have only made one attempt at automating how I deploy Kubernetes on azure, so if this worked out it would be such a joy because my last experiment didn&amp;rsquo;t go too well. So for the majority of this process, I would keep comparing my experience to my last attempt at something like this.&lt;/p>
+&lt;p>Enough talk let&amp;rsquo;s get right to it. The quickest way of getting started with Kubestack is by going through the &lt;a href="https://www.kubestack.com/framework/documentation/tutorial-get-started"target="_blank" rel="noopener noreferrer">getting started&lt;/a>
+guide. The guide is split into three parts which I find very nice as it allowed me to digest an individual section before moving to the next.&lt;/p>
+&lt;h3 id="kubestack-command-line">Kubestack command line&lt;/h3>
+&lt;p>The setup here was quite straightforward, grab the binary, unzip and move it to your path, before I proceeded with the rest of the tutorial I decided to explore a bit by viewing some of the subcommand available. Honestly, I have no real complaints here, the subcommands are clearly explained and flags are consistent. Although I would like to see tab completion, that&amp;rsquo;s just personal preference 😄&lt;/p>
+&lt;h3 id="bootstrapping-your-cluster">Bootstrapping your cluster&lt;/h3>
+&lt;p>Creating a cluster with Kubestack gets even easier as it automatically generates the base terraform&lt;/p>
+&lt;p>code. This is powerful because one you can now generate the configuration for all supported clouds and two I no longer have to copy and paste most of my code from a previous project. Once you have your &amp;ldquo;repository&amp;rdquo; initialized you only have to change three values to get going.&lt;/p>
+&lt;p>Where things started to get tricky for me was the inheritance model the terraform code Kubestack generated uses, But this might be due to my lack of experience in that area but it&amp;rsquo;s something to look out for.&lt;/p>
+&lt;h3 id="testing-locally">Testing locally&lt;/h3>
+&lt;p>Kubestack has a neat feature that will provision a local Kubernetes cluster using &lt;a href="https://kind.sigs.k8s.io/"target="_blank" rel="noopener noreferrer">KinD&lt;/a>
+and test your configuration against it, the advantage of this can&amp;rsquo;t be emphasized enough, I&amp;rsquo;ve broken a good chunk of my infrastructure simply because I didn&amp;rsquo;t have a sandbox environment to test against.&lt;/p>
+&lt;p>In addition, Kubestack generates a docker image with a few tools installed e.g(Kustomize, Terraform)&lt;/p>
+&lt;p>I found this quite convenient as I had an older version of terraform installed so I just opted to use the docker image instead. Creating a service principal for my account was a fairly smooth experience, the only real problem I ran into was giving to my service account. I ran into the following &lt;a href="https://login.microsoftonline.com/error?code=50076"target="_blank" rel="noopener noreferrer">error&lt;/a>
+which I was able to resolve by granting the account permission through the Azure portal.&lt;/p>
+&lt;h2 id="deploying">Deploying&lt;/h2>
+&lt;p>This was equally as easy creating two workspaces and deploying resources in each was pretty straightforward, one new concept (for me at least) is Kubestack would set up DNS per environment so this interesting to see.&lt;/p>
+&lt;h2 id="automation">Automation&lt;/h2>
+&lt;p>This was the part I was looking forward to the most. The goal is simple. Have a GitHub action setup in such a way that I can deploy to different environments and the pipeline would apply the Configuration.&lt;/p>
+&lt;h4 id="did-it-work">Did it work?&lt;/h4>
+&lt;p>Yes! Of all the steps this took me the least amount of time to complete, the only problem I ran into was base64 encoding my credentials which I got around by removing &lt;code>-w&lt;/code> because line breaks are automatically ignored on Mac, even at that it took me about 10mins to set up the entire pipeline.&lt;/p>
+&lt;p>While I&amp;rsquo;m a huge fan of Github actions it would be nice to have the option of seeing the setup for other CI services like GitLab&lt;/p>
+&lt;h2 id="beyond-the-tutorial">Beyond the tutorial&lt;/h2>
+&lt;p>And now for the fun part, trying things outside the tutorial. For this part, I wanted to see what else I could deploy to my cluster so I consulted the &lt;a href="https://www.kubestack.com/catalog"target="_blank" rel="noopener noreferrer">catalog&lt;/a>
+section and picked Argo CD ( other resources such as Flux Prometheus Operator and Cert Manger are also available ), as I mentioned earlier I&amp;rsquo;m very new to the inheritance model Kubestack uses and so this did not end too well, but this was not a total failure I saw this as an opportunity to really stretch the Pipeline I had just built out and so I made one more failing deployment and then I was able to rollback by simply reverting my commit, this is where GitOps truly shines, the fact that your infrastructure can now be thought of as commits in Git, Although I think the documentation could do a better job towards guiding people new to this style of configuration.&lt;/p>
+&lt;h2 id="additional-concerns">Additional concerns&lt;/h2>
+&lt;p>As I worked my way through the tutorial one thing that bothered me were the deprecation warnings that popped up every now and then, as i mentioned earlier this is something that could be fixed in a subsequent release.&lt;/p>
+&lt;h2 id="closing-thoughts">Closing thoughts&lt;/h2>
+&lt;p>At the end of the entire process I had but one question.&lt;/p>
+&lt;p>Was it worth it? Yes, it was. this is hands down the quickest I&amp;rsquo;ve ever set up something like this the entire process took me about an hour, compared to my previous attempt which took me three days :). So this is a huge saving in effort and time, a few additional things i&amp;rsquo;d like to see are:&lt;/p>
+&lt;ul>
+&lt;li>more resources in the catalouge section.&lt;/li>
+&lt;li>more clouds supported.&lt;/li>
+&lt;/ul>
+&lt;p>That sums up my experience with Kubestack feel free to check it out over &lt;a href="https://kubestack.com"target="_blank" rel="noopener noreferrer">here&lt;/a>
+and the complete code from the tutorial over &lt;a href="https://github.com/s1ntaxe770r/kubestack-sandbox"target="_blank" rel="noopener noreferrer">here&lt;/a>
+&lt;/p></description></item><item><title>What the heck is a data plane?</title><link>https://log.jubril.me/posts/data-plane/</link><pubDate>Wed, 12 May 2021 12:49:07 +0100</pubDate><guid>https://log.jubril.me/posts/data-plane/</guid><description>&lt;p>&lt;img src="https://www.treehugger.com/thmb/zHEqqllMa66MSzzitQ8G5pp136Y=/768x0/filters:no_upscale%28%29:max_bytes%28150000%29:strip_icc%28%29/__opt__aboutcom__coeus__resources__content_migration__mnn__images__2014__09__shutterstock_556793080-b4a5fd4b2287434b959ef955e39a7aa7.jpg"
+alt="Paper Airplane Sets Record With 82-Mile Flight"/>&lt;/p>
+&lt;p>As i sit here at 12:50am . I attempt to answer the question that&amp;rsquo;s been on my mind for days now. &amp;ldquo;What the heck is a data plane?&amp;rdquo;.&lt;/p>
+&lt;p>To fully understand we need to back track a bit. A data plane is one of two major components of a &lt;a href="https://www.redhat.com/en/topics/microservices/what-is-a-service-mesh"target="_blank" rel="noopener noreferrer">service mesh&lt;/a>
+, yet that alone is far from the answer i seek.&lt;/p>
+&lt;h2 id="taking-a-closer-look">Taking a closer look&lt;/h2>
+&lt;p>To find the answers i seek, it&amp;rsquo;s worth taking look at the architecture of a typical service mesh and analyze from there.&lt;/p>
+&lt;p>&lt;span class="image-container">&lt;span class="link">&lt;img class="img" src="https://istio.io/latest/docs/ops/deployment/architecture/arch.svg"
+alt="istio architecture"/>&lt;/span>&lt;span class="caption">&lt;span class="title">istio service mesh architecture&lt;/span>&lt;/span>&lt;/span>&lt;/p>
+&lt;p>When a request comes into service A on lets &lt;code>/login&lt;/code> the data plane ( AKA the sidecar proxy, in this case the envoy instance in the diagram ) is responsible for resolving what service the request is to be forwarded to, collect metrics , perform healthchecks and a bunch of other stuff the service mesh user might have configred it to do.&lt;/p>
+&lt;h2 id="tldr">TL;DR&lt;/h2>
+&lt;p>A data plane is a component of a service mesh responsible for:&lt;/p>
+&lt;ul>
+&lt;li>Routing&lt;/li>
+&lt;li>Load Balancing&lt;/li>
+&lt;li>Health Checks&lt;/li>
+&lt;li>Observability&lt;/li>
+&lt;li>Service Discovery&lt;/li>
+&lt;/ul>
+&lt;p>Popular examples inclued , &lt;a href="https://envoyproxy.io"target="_blank" rel="noopener noreferrer">Envoy proxy&lt;/a>
+, &lt;a href="https://nginx.com"target="_blank" rel="noopener noreferrer">Nginx&lt;/a>
+, &lt;a href="https://traefik.io/"target="_blank" rel="noopener noreferrer">Traefik&lt;/a>
+.&lt;/p></description></item><item><title>First Post</title><link>https://log.jubril.me/posts/first-post/</link><pubDate>Mon, 26 Apr 2021 15:38:07 +0100</pubDate><guid>https://log.jubril.me/posts/first-post/</guid><description>&lt;h1 id="wow-it-works">Wow it works&lt;/h1>
+&lt;p>Hello world&lt;/p></description></item><item><title>Kubernetes on ARM</title><link>https://log.jubril.me/posts/kubernetes-on-arm/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://log.jubril.me/posts/kubernetes-on-arm/</guid><description>&lt;h1 id="kubernetes-on-arm">Kubernetes on ARM&lt;/h1>
+&lt;p>It’s a nice Tuesday morning, the sun is out and I have had my first cup of coffee, what a lovely time to attempt to install Kubernetes on my Raspberry Pi.&lt;/p>
+&lt;p>I’m using the Raspberry Pi 4 with a 128GB SD card running &lt;a href="https://www.raspbian.org/"target="_blank" rel="noopener noreferrer">Raspbian&lt;/a>
+. Would this be enough? No idea but I’m about to find out.&lt;/p>
+&lt;p>&lt;img src="https://file.coffee/u/zgvZ35YWTfDlHxtAc8ZlP.gif"
+alt="lets-go-the-rock.gif"/>&lt;/p>
+&lt;h2 id="current-setup">Current Setup&lt;/h2>
+&lt;p>So far the only configuration I have made is assigning a static IP address and connected the PI to my router over Ethernet.&lt;/p>
+&lt;p>&lt;img src="https://file.coffee/u/rOjz_pfKQGiLuptFH4B4g.jpg"
+alt="current setup "/>&lt;/p>
+&lt;p>current setup&lt;/p>
+&lt;h2 id="kubernetes-distributions">Kubernetes Distributions&lt;/h2>
+&lt;p>Much Like Ice-Cream Kubernetes comes in different flavors picking the right combination would be key to how well this works ( so I think). Here are a few I evaluated.&lt;/p>
+&lt;h3 id="kindhttpskindsigsk8sio-kubernetes-in-docker">&lt;a href="https://kind.sigs.k8s.io/"target="_blank" rel="noopener noreferrer">KinD&lt;/a>
+(Kubernetes in Docker)&lt;/h3>
+&lt;p>KinD is a tool for running Kubernetes in Docker, it’s lightweight and works well. I use it for testing stuff on my Mac. But where’s the fun in Installing docker and calling it a day?. I’m not looking to do &lt;a href="https://github.com/kelseyhightower/kubernetes-the-hard-way"target="_blank" rel="noopener noreferrer">Kubernetes the hard way&lt;/a>
+but I want some resistance. For this reason, I would not be picking KinD.&lt;/p>
+&lt;h3 id="but-what-about-k3shttpsk3sio">&lt;a href="https://k3s.io/"target="_blank" rel="noopener noreferrer">But what about K3s?&lt;/a>
+&lt;/h3>
+&lt;p>K3s has a reputation for being lightweight and super fast. Promising a 30sec startup time along with being optimized for ARM. It is a very logical choice for my use case.&lt;/p>
+&lt;p>But here’s the thing. I don’t always like being “logical” and something about the next distribution screams INSTALL to me.&lt;/p>
+&lt;h3 id="i-give-you-k0s-">I give you K0s !!!&lt;/h3>
+&lt;p>&lt;img src="https://file.coffee/u/Dft7Bepe4nxKGBKG-M_xQ.png"
+alt="Untitled"/>&lt;/p>
+&lt;p>K0s advertises itself as a “&lt;strong>The Zero Friction Kubernetes”,&lt;/strong> obviously this is not what I am here for, I could sit here and re-word every feature on the k0s homepage but I don’t have time for that today, However, there are a few features I really like.&lt;/p>
+&lt;ol>
+&lt;li>In-Cluster SQLite: this is the default for single-node clusters, this is probably not as performant as ETCD but I’m not trying to &lt;a href="https://github.com/rancher/docs/issues/3134"target="_blank" rel="noopener noreferrer">destroy my SD&lt;/a>
+(prematurely).&lt;/li>
+&lt;li>Horizontal Pod Autoscaling: In case I need to scale my home network to handle traffic from a thousand users 🤣.&lt;/li>
+&lt;/ol>
+&lt;p>The features I mentioned most likely exist on k3s but like I said something in me really wants to give k0s a shot.&lt;/p>
+&lt;p>After combing the docs for several &lt;del>days&lt;/del> hours I finally realize why the controller has refused to start. I was doing two things wrong:&lt;/p>
+&lt;ul>
+&lt;li>I was using the installation instructions for Debian machines and k0s had &lt;a href="https://docs.k0sproject.io/v1.24.3&amp;#43;k0s.0/raspberry-pi4/"target="_blank" rel="noopener noreferrer">instructions&lt;/a>
+for the raspberry pi all along 🤦🏽.&lt;/li>
+&lt;li>Needed to enable &lt;code>cgroups&lt;/code> on the pi and a few other &lt;a href="https://docs.k0sproject.io/v1.24.3&amp;#43;k0s.0/raspberry-pi4/#set-up-nodes"target="_blank" rel="noopener noreferrer">options&lt;/a>
+and reboot the PI.&lt;/li>
+&lt;/ul>
+&lt;p>Well that worked so I should have a working cluster right ?&lt;/p>
+&lt;p>&lt;img src="https://file.coffee/u/hgDvJrZlYZJVFCH2zth04.jpg"
+alt="sddefault.jpg"/>&lt;/p>
+&lt;p>After running &lt;code>k0s start&lt;/code> I decide to watch the journalctl logs , which doesn’t sound like a bad idea at first , however I was met with some horrible node errors and at some point &lt;a href="https://coredns.io"target="_blank" rel="noopener noreferrer">coreDNS&lt;/a>
+refused to start. A solid 10 minutes go by and the node errors seemed to have resolved itself and coreDNS seemed to have initialized , but I still see some “partial failures” in the logs and I decide to wait it out a little longer.&lt;/p>
+&lt;p>&lt;img src="https://file.coffee/u/8F-dh7uQ-oTdOfzk9ovsp.png"
+alt="journalctl logs "/>&lt;/p>
+&lt;p>journalctl logs&lt;/p>
+&lt;p>Eventually I take the leap of faith and run &lt;code>kubectl get nodes&lt;/code> ….&lt;/p>
+&lt;p>&lt;img src="https://file.coffee/u/PjjdAv6xpK_hbTqQnn8uu.png"
+alt="Untitled"/>&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>NAME STATUS ROLES AGE VERSION
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>thev01d Ready control-plane 23m v1.23.6+k0s
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>The node is finally ready , well Mission accomplished right ? Not quite I still need a load balancer that I can use to expose my applications, I’ve heard good things about MetalLB so I would be trying that first. Thankfully k0s has a &lt;a href="https://docs.k0sproject.io/v1.23.6&amp;#43;k0s.2/examples/metallb-loadbalancer/"target="_blank" rel="noopener noreferrer">dedicated pag&lt;/a>
+e for MetalLB.&lt;/p>
+&lt;h2 id="what-about-nginx-ingress-controller-">What about Nginx Ingress controller ?&lt;/h2>
+&lt;p>Ever since I learned about ingress controllers I have always stuck with Nginx because it simple and gives me the least headaches(staring at you traefik) plus A/B testing is super easy with Nginx. The problem here is I don’t really need the routing capabilities of Nginx ingress , here all I need is a single static IP I can access my services on and MetalLB seems to do that.&lt;/p>
+&lt;h2 id="reality-strikes">Reality strikes&lt;/h2>
+&lt;p>&lt;img src="https://file.coffee/u/Og352mDPI2qTK6eyFinVp.jpg"
+alt="6qj1by.jpg"/>&lt;/p>
+&lt;p>Sadly this turned out to be the case and for whatever reason my pods where not getting an external IP. Tried a googling but I am honestly not ready to battle with my crappy router and get this thing working. So I did the sane thing a defaulted to Nginx which worked flawlessly.&lt;/p>
+&lt;p>&lt;img src="https://file.coffee/u/itriWVFHPt0MVliz2C6il.png"
+alt="Untitled"/>&lt;/p>
+&lt;p>Ah yes sweet sweet 404 , but this wouldn’t be complete without a “simple https server” would it?&lt;/p>
+&lt;p>&lt;img src="https://file.coffee/u/ue1a6TuQq12PF-GkkIdVL.png"
+alt="Untitled"/>&lt;/p>
+&lt;h2 id="conclusion">Conclusion&lt;/h2>
+&lt;p>Overall this was a great learning experience , I got to learn about different Kubernetes components and how they interact with one another. Also ran into an issue where my PI refused to connect to my router because the power supply was not enough, this got me thinking about what goes on in the average datacenter and how routers can fail ( mine did) and host of other problems that the modern day cloud abstracts from users.&lt;/p>
+&lt;p>If you made it this far thanks for reading , I hope to blog more about hardware and other PI projects is decide to make in the near future , until then goodbye and keep chewing!&lt;/p></description></item></channel></rss>
