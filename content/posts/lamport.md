@@ -21,9 +21,9 @@ Let $$t_a$$ be the timestamp of event in process $a$
 
 $$t_a \text{ : timestamp of event in process } a$$
 and $$t_b$$ be the timestamp of event in process $$b$$ $$t_b \text{ : timestamp of event in process } b$$
-If $$t_a < t_b$$ , event in process $$a$$ occurred first $$t_a < t_b \implies \text{event in process } a \text{ occurred first}$$
+If $$t_a < t_b$$ , event in process $$a$$ occurred first $$t_a < t_b \text{event in process } a \text{ occurred first}$$
 
-we use the notation $$a \rightarrow b$ to denote that event $a$ happens before event $b$. 
+We use the notation $$a \rightarrow b$$ to denote that event $$a$$ happens before event $$b$$.
 
 For example, to say that an event in process $$a$$ happens before an event in process $$b$$, we write:
 
