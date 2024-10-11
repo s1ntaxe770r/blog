@@ -17,11 +17,12 @@ Determining which came first is a matter of checking which has the lower timesta
 
 Mathematically we can represent this as:
 
-Let $$t_a$$ be the timestamp of event in process $a$
+Let $$t_a$$ be the timestamp of event in process $$a$$
 
 $$t_a \text{ : timestamp of event in process } a$$
-and $$t_b$$ be the timestamp of event in process $$b$$ $$t_b \text{ : timestamp of event in process } b$$
-If $$t_a < t_b$$ , event in process $$a$$ occurred first $$t_a < t_b \text{event in process } a \text{ occurred first}$$
+$$t_b \text{ : timestamp of event in process } b$$
+
+If $$t_a < t_b$$ ,the event in process $$a$$ occurred first
 
 We use the notation $$a \rightarrow b$$ to denote that event $$a$$ happens before event $$b$$.
 
