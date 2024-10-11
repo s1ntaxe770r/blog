@@ -6,11 +6,11 @@
 Determining which came first is a matter of checking which has the lower timestamp.
 Mathematically we can represent this as:&lt;/p>
 &lt;p>Let $t_a$ be the timestamp of event in process $a$
-$$ t_a \text{ : timestamp of event in process } a $$
-and $t_b$ be the timestamp of event in process $b$ $$ t_b \text{ : timestamp of event in process } b $$
-If $t_a &amp;lt; t_b$ , event in process $a$ occurred first $$ t_a &amp;lt; t_b \implies \text{event in process } a \text{ occurred first} $$
+$$t_a \text{ : timestamp of event in process } a$$
+and $t_b$ be the timestamp of event in process $b$ $t_b \text{ : timestamp of event in process } b$
+If $t_a &amp;lt; t_b$ , event in process $a$ occurred first $$t_a &amp;lt; t_b \implies \text{event in process } a \text{ occurred first}$$
 we use the notation $a \rightarrow b$ to denote that event $a$ happens before event $b$.&lt;/p>
-&lt;p>For example, if we want to say that an event in process $a$ happens before an event in process $b$, we can write: $$ t_a \rightarrow t_b $$
+&lt;p>For example, if we want to say that an event in process $a$ happens before an event in process $b$, we can write: $$t_a \rightarrow t_b$$
 This is read as &amp;ldquo;the event at time $t_a$ happens before the event at time $t_b$&amp;rdquo;.&lt;/p>
 &lt;p>Easy enough, but things start to fall apart we have to account for something called clock skew. Clock skew occurs when the internal clocks of different computers are not perfectly synchronized.&lt;/p>
 &lt;p>Even in the same data center, two processes running on separate machines can experience clock skew due to factors such as clock crystals may ticking at slightly different rates, latency in the NTP protocol.&lt;/p>
