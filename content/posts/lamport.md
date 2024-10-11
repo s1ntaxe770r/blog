@@ -1,8 +1,9 @@
 ---
 title: "Clocks, Event Ordering and Lamport"
-date: 2024-10-11 16:16
+date: 2024-10-11T16:37:11+0100
 draft: false
 --- 
+
 
 The order in which event's occur is an interesting topic and lately i have been thinking about it a lot. Particularly in the context of distributed systems.  
 
