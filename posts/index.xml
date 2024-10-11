@@ -21,23 +21,23 @@ $$&lt;/p>
 &lt;p>$$
 t_a \rightarrow t_b
 $$&lt;/p>
-&lt;p>This is read as &amp;ldquo;the event at time $$t_a$$ happens before the event at time $$t_b$$&amp;rdquo;.&lt;/p>
+&lt;p>This is read as &amp;ldquo;the event at time $$t_a$$ happens before the event at time $$t_b$$.&amp;rdquo;&lt;/p>
 &lt;p>Easy enough, but things start to fall apart we have to account for something called clock skew. Clock skew occurs when the internal clocks of different computers are not perfectly synchronized.&lt;/p>
-&lt;p>Even in the same data center, two processes running on separate machines can experience clock skew due to factors such as clock crystals may ticking at slightly different rates, latency in the NTP protocol.&lt;/p>
-&lt;p>That being said, order in distributed systems can be divided in two type. Partial and total order.&lt;/p>
-&lt;h3 id="partial-vs-total-order">Partial vs Total Order&lt;/h3>
+&lt;p>Even in the same data center, two processes running on separate machines can experience clock skew due to factors such as clock crystals ticking at slightly different rates and latency in the NTP protocol.&lt;/p>
+&lt;p>That being said, order in distributed systems can be further divided into two types. Partial and total order.&lt;/p>
+&lt;h3 id="partial-vs-total-order">Partial vs. Total Order&lt;/h3>
 &lt;p>The human mind views time as linear, AKA event $$a$$ $$\rightarrow$$ $$b$$ $$\rightarrow$$ $$c$$ as time passes.&lt;/p>
 &lt;p>This is an easy way to think of the concept of &lt;a href="https://en.wikipedia.org/wiki/Total_order"target="_blank" rel="noopener noreferrer">total order&lt;/a> where every element in a set is comparable or every element can be placed in a definite sequence , therefore we can say the system can be totally ordered.
 &lt;img src="https://github.com/s1ntaxe770r/blog/blob/master/content/posts/linear-time.png?raw=true"
 alt="lineartime"/>
-As you might have guess partial ordering is the opposite(kind of). Mathematically, it can be defined as a set in which some pairs of events, we can determine their order, but for others, we cannot.&lt;/p>
+As you might have guessed, partial ordering is the opposite(kind of). Mathematically, it can be defined as a set in which,for some pairs of events, we can determine their order, but for others, we cannot.&lt;/p>
 &lt;p>In a distributed system, events $$a$$ and $$b$$ on different processes might be concurrent ($$a || b$$), meaning we can&amp;rsquo;t determine which happened first.&lt;/p>
 &lt;h2 id="what-about-leslie">What about Leslie?&lt;/h2>
 &lt;p>In 1978 &lt;a href="https://www.google.com/search?client=safari&amp;amp;rls=en&amp;amp;q=leslie&amp;#43;lamport&amp;amp;ie=UTF-8&amp;amp;oe=UTF-8"target="_blank" rel="noopener noreferrer">Leslie Lamport&lt;/a> wrote a paper titled &amp;ldquo;Time, Clocks, and the Ordering of Events in a Distributed System&amp;rdquo;, he proposed the concept of logical clocks(lamport clocks) , which provide a way to assign timestamps to events in a distributed system without relying on physical clocks.&lt;/p>
 &lt;p>Part of why this post even exists is because I needed an excuse to implement a Lamport clock, which we will get to shortly.&lt;/p>
 &lt;h2 id="implementing--a-lamport-clock">Implementing a Lamport Clock&lt;/h2>
-&lt;p>I highly doubt my implementation is great but reading and implementing concepts from and academic paper was a fun exercise.&lt;/p>
-&lt;p>I began by creating an enum to represent of the three possible events the paper outlines:&lt;/p>
+&lt;p>I highly doubt my implementation is great, but reading and implementing concepts from an academic paper was a fun exercise.&lt;/p>
+&lt;p>I began by creating an enum to represent the three possible events the paper outlines:&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8be9fd;font-style:italic">type&lt;/span> Event &lt;span style="color:#8be9fd">int&lt;/span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8be9fd;font-style:italic">const&lt;/span> (
@@ -51,13 +51,13 @@ As you might have guess partial ordering is the opposite(kind of). Mathematicall
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> counter atomic.Int32
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> mutext sync.Mutex
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>using &lt;code>atomic.Int32&lt;/code> i can somewhat guarantee thread safety , the counter here is also important because the paper states:&lt;/p>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>using &lt;code>atomic.Int32&lt;/code> I can somewhat guarantee thread safety, the counter here is also important because the paper states:&lt;/p>
 &lt;blockquote>
 &lt;p>we define a clock Ci for each process Pi
 to be a function which assigns a number Ci(a) to any
-event a in that process.&lt;/p>
+event $$a$$ in that process.&lt;/p>
 &lt;/blockquote>
-&lt;p>The mutex is an implementation detail to ensure thread-safety.&lt;/p>
+&lt;p>The mutex is an implementation detail to ensure thread safety.&lt;/p>
 &lt;p>Now, let&amp;rsquo;s look at the methods:&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8be9fd;font-style:italic">func&lt;/span>(lc &lt;span style="color:#ff79c6">*&lt;/span>LamportClock)&lt;span style="color:#50fa7b">Tick&lt;/span>(currentClock &lt;span style="color:#8be9fd">int32&lt;/span>) {
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> currentTime &lt;span style="color:#ff79c6">:=&lt;/span> &lt;span style="color:#8be9fd;font-style:italic">max&lt;/span>(lc.counter.&lt;span style="color:#50fa7b">Load&lt;/span>(), currentClock) &lt;span style="color:#ff79c6">+&lt;/span> &lt;span style="color:#bd93f9">1&lt;/span>
@@ -72,7 +72,7 @@ event a in that process.&lt;/p>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#ff79c6">return&lt;/span> lc.counter.&lt;span style="color:#50fa7b">Load&lt;/span>()
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>The &lt;code>Tick&lt;/code> method implements the core of Lamport&amp;rsquo;s clock synchronization. When a message is received, the clock is updated to be greater than both its current value and the timestamp of the received message.&lt;/p>
-&lt;p>&lt;code>max(lc.counter.Load(), currentClock)&lt;/code> compares the local clock value with the received timestamp (&lt;code>currentClock&lt;/code>). We need to use &lt;code>max&lt;/code> here to ensure that the new clock value is greater than both&lt;/p>
+&lt;p>&lt;code>max(lc.counter.Load(), currentClock)&lt;/code> compares the local clock value with the received timestamp (&lt;code>currentClock&lt;/code>). We need to use &lt;code>max&lt;/code> here to ensure that the new clock value is greater than both.&lt;/p>
 &lt;p>The local clock value (to maintain the local process order) and the received timestamp (to respect the &amp;ldquo;happens-before&amp;rdquo; relationship with the sending process)&lt;/p>
 &lt;p>The &lt;code>Local&lt;/code> method increments the counter for local events. As Lamport put it:&lt;/p>
 &lt;blockquote>
@@ -102,7 +102,7 @@ event a in that process.&lt;/p>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Clock clock.LamportClock
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> mutext sync.RWMutex
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>In order for the &lt;code>Service&lt;/code> struct to implement the &lt;code>node&lt;/code> interface i added three methods&lt;/p>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>In order for the &lt;code>Service&lt;/code> struct to implement the &lt;code>node&lt;/code> interface, I added three methods.&lt;/p>
 &lt;p>&lt;strong>Send Method&lt;/strong>:&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8be9fd;font-style:italic">func&lt;/span> (s &lt;span style="color:#ff79c6">*&lt;/span>Service) &lt;span style="color:#50fa7b">Send&lt;/span>(CurrentTimestamp &lt;span style="color:#8be9fd">int32&lt;/span>) &lt;span style="color:#8be9fd">int32&lt;/span> {
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> s.Clock.&lt;span style="color:#50fa7b">Local&lt;/span>()
@@ -135,7 +135,7 @@ event a in that process.&lt;/p>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="validating-my-implementation">Validating my Implementation&lt;/h3>
-&lt;p>Testing stuff like this is weird, there isn&amp;rsquo;t exactly a guide titled &amp;ldquo;testing your distributed system&amp;rdquo;. But it seemed sane to write some tests to ensure the implementation worked somewhat.&lt;/p>
+&lt;p>Testing stuff like this is weird. There isn&amp;rsquo;t exactly a guide titled &amp;ldquo;Testing your distributed system,&amp;rdquo; but it seemed sane to write some tests to ensure the implementation worked somewhat.&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8be9fd;font-style:italic">func&lt;/span> &lt;span style="color:#50fa7b">TestSingleTick&lt;/span>(t &lt;span style="color:#ff79c6">*&lt;/span>testing.T) {
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> messageChan &lt;span style="color:#ff79c6">:=&lt;/span> &lt;span style="color:#8be9fd;font-style:italic">make&lt;/span>(&lt;span style="color:#8be9fd;font-style:italic">chan&lt;/span> node.Message, &lt;span style="color:#bd93f9">100&lt;/span>)
@@ -163,8 +163,8 @@ event a in that process.&lt;/p>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> assert.&lt;span style="color:#50fa7b">Equal&lt;/span>(t, &lt;span style="color:#bd93f9">2&lt;/span>, &lt;span style="color:#8be9fd;font-style:italic">int&lt;/span>(OrderService.Clock.&lt;span style="color:#50fa7b">CurrentTimestamp&lt;/span>()))
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="tick--tickhttpswwwyoutubecomwatchvtqaf5w6ns88">Tick , &lt;a href="https://www.youtube.com/watch?v=tQAF5W6NS88"target="_blank" rel="noopener noreferrer">Tick&lt;/a>&amp;hellip;&lt;/h2>
-&lt;p>while my doubts about my implementation still remain, I learnt a ton about more about clocks and shockingly the human perception of time. Beyond that it was great to get a way from the grasp of Kubernetes.&lt;/p>
-&lt;p>The full implementation is available &lt;a href="https://github.com/s1ntaxe770r/whyport-this-clock"target="_blank" rel="noopener noreferrer">here&lt;/a> , also a lot of the information here wouldn&amp;rsquo;t be possible without these amazing authors:&lt;/p>
+&lt;p>while my doubts about my implementation still remain, I learned a ton more about clocks and, shockingly, the human perception of time. Beyond that, it was great to get away from the grasp of Kubernetes.&lt;/p>
+&lt;p>The full implementation is available &lt;a href="https://github.com/s1ntaxe770r/whyport-this-clock"target="_blank" rel="noopener noreferrer">here&lt;/a>, also a lot of the information here wouldn&amp;rsquo;t be possible without these amazing authors:&lt;/p>
 &lt;ul>
 &lt;li>&lt;a href="https://medium.com/outreach-prague/lamport-clocks-determining-the-order-of-events-in-distributed-systems-41a9a8489177"target="_blank" rel="noopener noreferrer">Christian Galatolo&lt;/a>&lt;/li>
 &lt;li>&lt;a href="https://blog.fponzi.me/2024-02-02-lamport-clocks.html#what-problem-are-they-trying-to-solve"target="_blank" rel="noopener noreferrer">Lamport Clocks by Fredrico Ponzi&lt;/a>&lt;/li>
