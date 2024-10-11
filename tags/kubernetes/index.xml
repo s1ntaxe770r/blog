@@ -11,11 +11,15 @@
 &lt;p>We can represent this mathematically as:&lt;/p>
 &lt;p>$$
 \begin{aligned}
-t_a &amp;amp;: \text{timestamp of event in process } a \
+t_a &amp;amp;: \text{timestamp of event in process } a
+\end{aligned}
+$$&lt;/p>
+&lt;p>$$
+\begin{aligned}
 t_b &amp;amp;: \text{timestamp of event in process } b
 \end{aligned}
 $$&lt;/p>
-&lt;p>If $$t_a &amp;lt; t_b$$, we can conclude that the event in process $$a$$ occurred first.&lt;/p>
+&lt;p>If $$t_a &amp;lt; t_b$$ we can conclude that the event in process $$a$$ occurred first.&lt;/p>
 &lt;p>We use the notation $$a \rightarrow b$$ to denote that event $$a$$ happens before event $$b$$.&lt;/p>
 &lt;p>For example, to say that an event in process $$a$$ happens before an event in process $$b$$, we write:&lt;/p>
 &lt;p>$$
