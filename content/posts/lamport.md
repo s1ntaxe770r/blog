@@ -34,7 +34,7 @@ That being said, order in distributed systems can  be divided in two type. Parti
  The human mind views time as linear,  AKA event $a$  $\rightarrow$ $b$ $\rightarrow$ $c$  as time passes.  
  
  This is an easy way to think of  the concept of [total order](https://en.wikipedia.org/wiki/Total_order) where every element in a set is comparable or every element can be placed in a definite sequence ,  therefore we can say the system can be totally ordered. 
-![lineartime](lamport/linear-time.png)
+![lineartime](https://github.com/s1ntaxe770r/blog/blob/master/content/posts/linear-time.png?raw=true)
 As you might have guess partial ordering is the opposite(kind of). Mathematically,  it can be defined as a set in which some pairs of events, we can determine their order, but for others, we cannot.  
 
 In a distributed system, events $a$ and $b$ on different processes might be concurrent ($a || b$), meaning we can't determine which happened first.
