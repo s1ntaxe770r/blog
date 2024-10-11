@@ -23,13 +23,19 @@ We can represent this mathematically as:
 
 $$
 \begin{aligned}
-t_a &: \text{timestamp of event in process } a \\
+t_a &: \text{timestamp of event in process } a
+\end{aligned}
+$$
+
+
+$$
+\begin{aligned}
 t_b &: \text{timestamp of event in process } b
 \end{aligned}
 $$
 
 
-If $$t_a < t_b$$, we can conclude that the event in process $$a$$ occurred first.
+If $$t_a < t_b$$ we can conclude that the event in process $$a$$ occurred first.
 
 We use the notation $$a \rightarrow b$$ to denote that event $$a$$ happens before event $$b$$. 
 
