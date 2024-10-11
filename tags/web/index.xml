@@ -2,25 +2,14 @@
 &lt;p>The rationale behind my thinking is fairly simple. In a large distributed system, how does the system maintain order ? Better still how does each process know which event came first?&lt;/p>
 &lt;p>Before the rambling continues, perhaps i should start by defining what an &lt;em>event&lt;/em> is. An &lt;em>event&lt;/em> simply refers an occurrence or action within a process. This could include sending or receiving a message or some kind of local action such as writing to disk.&lt;/p>
 &lt;h2 id="what-happened-to-timestamps">What happened to timestamps?&lt;/h2>
-&lt;p>Time stamps are great and are easy to reason about. process $$a$$ and $$b$$ receive an event at time &lt;em>t&lt;/em> .&lt;/p>
-&lt;p>Determining which event came first is a matter of comparing timestamps:&lt;/p>
-&lt;ul>
-&lt;li>Let $$t_a$$ be the timestamp of the event in process $$a$$&lt;/li>
-&lt;li>Let $$t_b$$ be the timestamp of the event in process $$b$$&lt;/li>
-&lt;/ul>
-&lt;p>We can represent this mathematically as:&lt;/p>
-&lt;p>$$
-\begin{aligned}
-t_a &amp;amp;: \text{timestamp of event in process } a
-\end{aligned}
-$$&lt;/p>
-&lt;p>$$
-\begin{aligned}
-t_b &amp;amp;: \text{timestamp of event in process } b
-\end{aligned}
-$$&lt;/p>
-&lt;p>If $$t_a &amp;lt; t_b$$ we can conclude that the event in process $$a$$ occurred first.&lt;/p>
-&lt;p>We use the notation $$a \rightarrow b$$ to denote that event $$a$$ happens before event $$b$$.&lt;/p>
+&lt;p>Time stamps are great and are easy to reason about. process $a$ and $b$ receive an event at time &lt;em>t&lt;/em> .
+Determining which came first is a matter of checking which has the lower timestamp.&lt;/p>
+&lt;p>Mathematically we can represent this as:&lt;/p>
+&lt;p>Let $$t_a$$ be the timestamp of event in process $a$&lt;/p>
+&lt;p>$$t_a \text{ : timestamp of event in process } a$$
+and $$t_b$$ be the timestamp of event in process $$b$$ $$t_b \text{ : timestamp of event in process } b$$
+If $$t_a &amp;lt; t_b$$ , event in process $$a$$ occurred first $$t_a &amp;lt; t_b \implies \text{event in process } a \text{ occurred first}$$&lt;/p>
+&lt;p>we use the notation $$a \rightarrow b$ to denote that event $a$ happens before event $b$.&lt;/p>
 &lt;p>For example, to say that an event in process $$a$$ happens before an event in process $$b$$, we write:&lt;/p>
 &lt;p>$$
 t_a \rightarrow t_b
