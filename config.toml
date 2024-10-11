@@ -4,7 +4,7 @@ title = "$> cat /var/log/e770r"
 theme = "hugo-notepadium"
 copyright = "©2021 s1ntaxe770r"
 googleAnalytics="G-D6NJ1ZKSX9"
-bio = "Hi there, welcome to my corener of the interwebs where i share ramblings from my encounters with technology"
+bio = "Hi there, welcome to my corner of the interwebs where i share ramblings from my encounters with technology"
 [params.nav]
 showCategories = true       
 showTags = true  
@@ -14,6 +14,9 @@ logo = "https://avatars.githubusercontent.com/u/53065463?v=4"
 slogan = "logging my experiences one blog at a time ~"
 readingTime = false  
 
+[params.math]
+enable = false  # optional: true, false. Enable globally, default: false. You can always enable math on per page.
+use = "katex"
 
 [params.profile]
 enable = true
