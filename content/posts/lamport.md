@@ -17,12 +17,12 @@ Determining which came first is a matter of checking which has the lower timesta
 Mathematically we can represent this as:
 
 Let $t_a$ be the timestamp of event in process $a$
-$$ t_a \text{ : timestamp of event in process } a $$
-and $t_b$ be the timestamp of event in process $b$ $$ t_b \text{ : timestamp of event in process } b $$
-If $t_a < t_b$ , event in process $a$ occurred first $$ t_a < t_b \implies \text{event in process } a \text{ occurred first} $$
+$$t_a \text{ : timestamp of event in process } a$$
+and $t_b$ be the timestamp of event in process $b$ $t_b \text{ : timestamp of event in process } b$
+If $t_a < t_b$ , event in process $a$ occurred first $$t_a < t_b \implies \text{event in process } a \text{ occurred first}$$
 we use the notation $a \rightarrow b$ to denote that event $a$ happens before event $b$. 
 
-For example, if we want to say that an event in process $a$ happens before an event in process $b$, we can write: $$ t_a \rightarrow t_b $$
+For example, if we want to say that an event in process $a$ happens before an event in process $b$, we can write: $$t_a \rightarrow t_b$$
 This  is read as "the event at time $t_a$ happens before the event at time $t_b$".
 
 Easy enough,  but things start to fall apart we have to account for something called clock skew.  Clock skew occurs when the internal clocks of different computers are not perfectly synchronized.
