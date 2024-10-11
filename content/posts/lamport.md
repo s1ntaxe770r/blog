@@ -12,32 +12,18 @@ The rationale behind my thinking is fairly simple. In a large distributed system
 Before the rambling continues,  perhaps i should  start by defining what an *event* is.  An *event* simply refers an occurrence or action within a process. This could include sending or receiving a message or some kind of local action such as writing to disk.
 
 ## What happened to timestamps?
-Time stamps are great and are easy to reason about. process $$a$$ and $$b$$ receive an event at time *t* . 
+Time stamps are great and are easy to reason about. process $a$ and $b$ receive an event at time *t* . 
+Determining which came first is a matter of checking which has the lower timestamp. 
 
-Determining which event came first is  a matter of comparing timestamps:
+Mathematically we can represent this as:
 
-- Let $$t_a$$ be the timestamp of the event in process $$a$$
-- Let $$t_b$$ be the timestamp of the event in process $$b$$
+Let $$t_a$$ be the timestamp of event in process $a$
 
-We can represent this mathematically as:
+$$t_a \text{ : timestamp of event in process } a$$
+and $$t_b$$ be the timestamp of event in process $$b$$ $$t_b \text{ : timestamp of event in process } b$$
+If $$t_a < t_b$$ , event in process $$a$$ occurred first $$t_a < t_b \implies \text{event in process } a \text{ occurred first}$$
 
-$$
-\begin{aligned}
-t_a &: \text{timestamp of event in process } a
-\end{aligned}
-$$
-
-
-$$
-\begin{aligned}
-t_b &: \text{timestamp of event in process } b
-\end{aligned}
-$$
-
-
-If $$t_a < t_b$$ we can conclude that the event in process $$a$$ occurred first.
-
-We use the notation $$a \rightarrow b$$ to denote that event $$a$$ happens before event $$b$$. 
+we use the notation $$a \rightarrow b$ to denote that event $a$ happens before event $b$. 
 
 For example, to say that an event in process $$a$$ happens before an event in process $$b$$, we write:
 
