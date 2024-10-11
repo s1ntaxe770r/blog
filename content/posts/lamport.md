@@ -12,18 +12,18 @@ The rationale behind my thinking is fairly simple. In a large distributed system
 Before the rambling continues,  perhaps i should  start by defining what an *event* is.  An *event* simply refers an occurrence or action within a process. This could include sending or receiving a message or some kind of local action such as writing to disk.
 
 ## What happened to timestamps?
-Time stamps are great and are easy to reason about. process $a$ and $b$ receive an event at time *t* . 
+Time stamps are great and are easy to reason about. process $$a$$ and $$b$$ receive an event at time *t* . 
 Determining which came first is a matter of checking which has the lower timestamp. 
 Mathematically we can represent this as:
 
-Let $t_a$ be the timestamp of event in process $a$
+Let $$t_a$$ be the timestamp of event in process $$a$$
 $$t_a \text{ : timestamp of event in process } a$$
-and $t_b$ be the timestamp of event in process $b$ $t_b \text{ : timestamp of event in process } b$
-If $t_a < t_b$ , event in process $a$ occurred first $$t_a < t_b \implies \text{event in process } a \text{ occurred first}$$
-we use the notation $a \rightarrow b$ to denote that event $a$ happens before event $b$. 
+and $$t_b$$ be the timestamp of event in process $$b$$ $$t_b \text{ : timestamp of event in process } b$$
+If $$t_a < t_b$$ , event in process $$a$$ occurred first $$t_a < t_b \implies \text{event in process } a \text{ occurred first}$$
+we use the notation $$a \rightarrow b$$ to denote that event $$a$$ happens before event $$b$$. 
 
-For example, if we want to say that an event in process $a$ happens before an event in process $b$, we can write: $$t_a \rightarrow t_b$$
-This  is read as "the event at time $t_a$ happens before the event at time $t_b$".
+For example, if we want to say that an event in process $$a$$ happens before an event in process $$b$$, we can write: $$t_a \rightarrow t_b$$
+This  is read as "the event at time $$t_a$$ happens before the event at time $$t_b$$".
 
 Easy enough,  but things start to fall apart we have to account for something called clock skew.  Clock skew occurs when the internal clocks of different computers are not perfectly synchronized.
 
@@ -32,13 +32,13 @@ Even in the same data center, two processes running on separate machines can exp
 That being said, order in distributed systems can  be divided in two type. Partial and total order. 
 
 ### Partial vs Total Order 
- The human mind views time as linear,  AKA event $a$  $\rightarrow$ $b$ $\rightarrow$ $c$  as time passes.  
+ The human mind views time as linear,  AKA event $$a$$  $$\rightarrow$$ $$b$$ $$\rightarrow$$ $$c$$  as time passes.  
  
  This is an easy way to think of  the concept of [total order](https://en.wikipedia.org/wiki/Total_order) where every element in a set is comparable or every element can be placed in a definite sequence ,  therefore we can say the system can be totally ordered. 
 ![lineartime](https://github.com/s1ntaxe770r/blog/blob/master/content/posts/linear-time.png?raw=true)
 As you might have guess partial ordering is the opposite(kind of). Mathematically,  it can be defined as a set in which some pairs of events, we can determine their order, but for others, we cannot.  
 
-In a distributed system, events $a$ and $b$ on different processes might be concurrent ($a || b$), meaning we can't determine which happened first.
+In a distributed system, events $$a$$ and $$b$$ on different processes might be concurrent ($$a || b$$), meaning we can't determine which happened first.
 ## What about Leslie? 
 In 1978 [Leslie Lamport](https://www.google.com/search?client=safari&rls=en&q=leslie+lamport&ie=UTF-8&oe=UTF-8) wrote a paper titled "Time, Clocks, and the Ordering of Events in a Distributed System",  he proposed  the concept of logical clocks(lamport clocks) , which provide a way to assign timestamps to events in a distributed system without relying on physical clocks.
 
@@ -91,18 +91,18 @@ func(lc *LamportClock)CurrentTimestamp() int32 {
 }
 ```
 
-The `Tick` method implements the core of Lamport's clock synchronization. When a message is received, the clock is updated to be greater than both its current value and the timestamp of the received message. 
+The `Tick` method implements the core of Lamport's clock synchronization. When a message is received, the clock is updated to be greater than both its current value and the timestamp of the received message. 
 
 `max(lc.counter.Load(), currentClock)`  compares the local clock value with the received timestamp (`currentClock`). We need to use `max` here to ensure that the new clock value is greater than both
 
 The local clock value (to maintain the local process order) and  the received timestamp (to respect the "happens-before" relationship with the sending process)
 
 
-The `Local` method increments the counter for local events. As Lamport put it: 
+The `Local` method increments the counter for local events. As Lamport put it: 
 
-> Each process $P_i$ increments Ci between any two successive events.
+> Each process $$P_i$$ increments Ci between any two successive events.
 
-The `CurrentTimestamp` method simply returns the current value of the logical clock, which can be used when sending messages to other processes.
+The `CurrentTimestamp` method simply returns the current value of the logical clock, which can be used when sending messages to other processes.
 
 ### Processes 
 Here i tried to model individual processes or services as nodes in a distributed system. 
@@ -116,7 +116,7 @@ type Node interface {
 }
 ```
 
-I also needed to define a `Message` struct to represent the messages exchanged between nodes:
+I also needed to define a `Message` struct to represent the messages exchanged between nodes:
 ```go
 type Message struct {
     SenderID  string
@@ -126,7 +126,7 @@ type Message struct {
 ```
 Each message contains the sender's ID, the Lamport timestamp, and the message content.
 
-I used a `Service`  struct to represent a process with an embedded Lamport clock:
+I used a `Service`  struct to represent a process with an embedded Lamport clock:
 ```go
 type Service struct {
     Name        string
@@ -219,9 +219,3 @@ The full implementation is available [here](https://github.com/s1ntaxe770r/whypo
 - [Lamport Clocks by Fredrico Ponzi](https://blog.fponzi.me/2024-02-02-lamport-clocks.html#what-problem-are-they-trying-to-solve)
 - [ The Original Paper](https://lamport.azurewebsites.net/pubs/time-clocks.pdf)
 - [Time and Order by](https://book.mixu.net/distsys/time.html) [Mikito Takada](http://mixu.net/).
-
-
-
-
-
-
