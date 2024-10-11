@@ -20,6 +20,9 @@ Mathematically we can represent this as:
 Let $$t_a$$ be the timestamp of event in process $$a$$
 
 $$t_a \text{ : timestamp of event in process } a$$
+
+
+
 $$t_b \text{ : timestamp of event in process } b$$
 
 If $$t_a < t_b$$ ,the event in process $$a$$ occurred first
