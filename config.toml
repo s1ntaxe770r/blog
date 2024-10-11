@@ -15,7 +15,7 @@ slogan = "logging my experiences one blog at a time ~"
 readingTime = false  
 
 [params.math]
-enable = false  # optional: true, false. Enable globally, default: false. You can always enable math on per page.
+enable = true 
 use = "katex"
 
 [params.profile]
