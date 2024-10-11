@@ -39,20 +39,20 @@ $$
 t_a \rightarrow t_b
 $$
 
-This is read as "the event at time $$t_a$$ happens before the event at time $$t_b$$".
+This is read as "the event at time $$t_a$$ happens before the event at time $$t_b$$."
 
-Easy enough,  but things start to fall apart we have to account for something called clock skew.  Clock skew occurs when the internal clocks of different computers are not perfectly synchronized.
+Easy enough, but things start to fall apart we have to account for something called clock skew. Clock skew occurs when the internal clocks of different computers are not perfectly synchronized.
 
-Even in the same data center, two processes running on separate machines can experience clock skew due to factors such as clock crystals may ticking at slightly different rates,  latency in the NTP protocol.
+Even in the same data center, two processes running on separate machines can experience clock skew due to factors such as clock crystals ticking at slightly different rates and  latency in the NTP protocol.
 
-That being said, order in distributed systems can  be divided in two type. Partial and total order. 
+That being said, order in distributed systems can be further divided into two types. Partial and total order. 
 
-### Partial vs Total Order 
+### Partial vs. Total Order 
  The human mind views time as linear,  AKA event $$a$$  $$\rightarrow$$ $$b$$ $$\rightarrow$$ $$c$$  as time passes.  
  
  This is an easy way to think of  the concept of [total order](https://en.wikipedia.org/wiki/Total_order) where every element in a set is comparable or every element can be placed in a definite sequence ,  therefore we can say the system can be totally ordered. 
 ![lineartime](https://github.com/s1ntaxe770r/blog/blob/master/content/posts/linear-time.png?raw=true)
-As you might have guess partial ordering is the opposite(kind of). Mathematically,  it can be defined as a set in which some pairs of events, we can determine their order, but for others, we cannot.  
+As you might have guessed, partial ordering is the opposite(kind of). Mathematically,  it can be defined as a set in which,for some pairs of events, we can determine their order, but for others, we cannot.  
 
 In a distributed system, events $$a$$ and $$b$$ on different processes might be concurrent ($$a || b$$), meaning we can't determine which happened first.
 ## What about Leslie? 
@@ -61,9 +61,9 @@ In 1978 [Leslie Lamport](https://www.google.com/search?client=safari&rls=en&q=le
 Part of why this post even exists is because I needed an excuse to implement a Lamport clock, which we will get to shortly.
 
 ## Implementing  a Lamport Clock
-I highly doubt my implementation is great but reading and implementing concepts from and academic paper was a fun exercise. 
+I highly doubt my implementation is great, but reading and implementing concepts from an academic paper was a fun exercise. 
 
-I began by creating an enum to represent of the three possible events the paper outlines:
+I began by creating an enum to represent the three possible events the paper outlines:
 ```go
 type Event int
 
@@ -83,13 +83,13 @@ type LamportClock struct {
     mutext  sync.Mutex
 }
 ```
-using `atomic.Int32` i can somewhat guarantee thread safety , the counter here is also important because the paper states:
+using `atomic.Int32` I can somewhat guarantee thread safety, the counter here is also important because the paper states:
 
 >we define a clock Ci for each process Pi
 to be a function which assigns a number Ci(a) to any
-event a in that process. 
+event $$a$$ in that process. 
 
-The mutex is an implementation detail to ensure thread-safety. 
+The mutex is an implementation detail to ensure thread safety. 
 
 Now, let's look at the methods:
 ```go
@@ -109,7 +109,7 @@ func(lc *LamportClock)CurrentTimestamp() int32 {
 
 The `Tick` method implements the core of Lamport's clock synchronization. When a message is received, the clock is updated to be greater than both its current value and the timestamp of the received message. 
 
-`max(lc.counter.Load(), currentClock)`  compares the local clock value with the received timestamp (`currentClock`). We need to use `max` here to ensure that the new clock value is greater than both
+`max(lc.counter.Load(), currentClock)`  compares the local clock value with the received timestamp (`currentClock`). We need to use `max` here to ensure that the new clock value is greater than both.
 
 The local clock value (to maintain the local process order) and  the received timestamp (to respect the "happens-before" relationship with the sending process)
 
@@ -154,7 +154,7 @@ type Service struct {
 }
 ```
 
-In order for the `Service` struct to implement the `node` interface i added three methods 
+In order for the `Service` struct to implement the `node` interface, I added three methods. 
 
 **Send Method**:
 ```go
@@ -196,7 +196,7 @@ func (s *Service) HandleMessages() {
 ```
 
 ### Validating my Implementation
-Testing stuff like this is weird, there isn't exactly a guide titled "testing your distributed system". But it seemed sane to write some tests to ensure the implementation worked somewhat. 
+Testing stuff like this is weird. There isn't exactly a guide titled "Testing your distributed system," but it seemed sane to write some tests to ensure the implementation worked somewhat. 
 
 ```go
 
@@ -227,9 +227,9 @@ func TestSend(t *testing.T) {
 }
 ```
 ## Tick , [Tick](https://www.youtube.com/watch?v=tQAF5W6NS88)...
-while my doubts about my implementation still remain, I learnt a ton about more about clocks and shockingly the human perception of time. Beyond that  it was great to get a way from the grasp of Kubernetes. 
+while my doubts about my implementation still remain, I learned a ton more about clocks and, shockingly, the human perception of time. Beyond that, it was great to get away from the grasp of Kubernetes. 
 
-The full implementation is available [here](https://github.com/s1ntaxe770r/whyport-this-clock) , also a lot of the information here wouldn't be possible without these amazing authors: 
+The full implementation is available [here](https://github.com/s1ntaxe770r/whyport-this-clock), also a lot of the information here wouldn't be possible without these amazing authors: 
 
 - [Christian Galatolo](https://medium.com/outreach-prague/lamport-clocks-determining-the-order-of-events-in-distributed-systems-41a9a8489177)
 - [Lamport Clocks by Fredrico Ponzi](https://blog.fponzi.me/2024-02-02-lamport-clocks.html#what-problem-are-they-trying-to-solve)
