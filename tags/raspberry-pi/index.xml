@@ -1,10 +1,171 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Raspberry PI on $> cat /var/log/e770r</title><link>https://log.jubril.me/tags/raspberry-pi/</link><description>Recent content in Raspberry PI on $> cat /var/log/e770r</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>©2021 s1ntaxe770r</copyright><lastBuildDate>Sun, 21 Aug 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://log.jubril.me/tags/raspberry-pi/index.xml" rel="self" type="application/rss+xml"/><item><title>In Search of Coherence</title><link>https://log.jubril.me/posts/in-search-of-coherence/</link><pubDate>Sat, 13 Apr 2024 14:00:29 +0000</pubDate><guid>https://log.jubril.me/posts/in-search-of-coherence/</guid><description>&lt;p>Speak to me enough times, and at some point, you’ll hear me say, “Hold on, let me collect my thoughts” This is a small portion of a bigger goal I think I strive for.&lt;/p>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Raspberry PI on $> cat /var/log/e770r</title><link>https://log.jubril.me/tags/raspberry-pi/</link><description>Recent content in Raspberry PI on $> cat /var/log/e770r</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>©2021 s1ntaxe770r</copyright><lastBuildDate>Sun, 21 Aug 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://log.jubril.me/tags/raspberry-pi/index.xml" rel="self" type="application/rss+xml"/><item><title>Clocks, Event Ordering and Lamport</title><link>https://log.jubril.me/posts/lamport/</link><pubDate>Fri, 11 Oct 2024 16:37:11 +0100</pubDate><guid>https://log.jubril.me/posts/lamport/</guid><description>&lt;p>The order in which event&amp;rsquo;s occur is an interesting topic and lately i have been thinking about it a lot. Particularly in the context of distributed systems.&lt;/p>
+&lt;p>The rationale behind my thinking is fairly simple. In a large distributed system, how does the system maintain order ? Better still how does each process know which event came first?&lt;/p>
+&lt;p>Before the rambling continues, perhaps i should start by defining what an &lt;em>event&lt;/em> is. An &lt;em>event&lt;/em> simply refers an occurrence or action within a process. This could include sending or receiving a message or some kind of local action such as writing to disk.&lt;/p>
+&lt;h2 id="what-happened-to-timestamps">What happened to timestamps?&lt;/h2>
+&lt;p>Time stamps are great and are easy to reason about. process $a$ and $b$ receive an event at time &lt;em>t&lt;/em> .
+Determining which came first is a matter of checking which has the lower timestamp.
+Mathematically we can represent this as:&lt;/p>
+&lt;p>Let $t_a$ be the timestamp of event in process $a$
+$$ t_a \text{ : timestamp of event in process } a $$
+and $t_b$ be the timestamp of event in process $b$ $$ t_b \text{ : timestamp of event in process } b $$
+If $t_a &amp;lt; t_b$ , event in process $a$ occurred first $$ t_a &amp;lt; t_b \implies \text{event in process } a \text{ occurred first} $$
+we use the notation $a \rightarrow b$ to denote that event $a$ happens before event $b$.&lt;/p>
+&lt;p>For example, if we want to say that an event in process $a$ happens before an event in process $b$, we can write: $$ t_a \rightarrow t_b $$
+This is read as &amp;ldquo;the event at time $t_a$ happens before the event at time $t_b$&amp;rdquo;.&lt;/p>
+&lt;p>Easy enough, but things start to fall apart we have to account for something called clock skew. Clock skew occurs when the internal clocks of different computers are not perfectly synchronized.&lt;/p>
+&lt;p>Even in the same data center, two processes running on separate machines can experience clock skew due to factors such as clock crystals may ticking at slightly different rates, latency in the NTP protocol.&lt;/p>
+&lt;p>That being said, order in distributed systems can be divided in two type. Partial and total order.&lt;/p>
+&lt;h3 id="partial-vs-total-order">Partial vs Total Order&lt;/h3>
+&lt;p>The human mind views time as linear, AKA event $a$ $\rightarrow$ $b$ $\rightarrow$ $c$ as time passes.&lt;/p>
+&lt;p>This is an easy way to think of the concept of &lt;a href="https://en.wikipedia.org/wiki/Total_order"target="_blank" rel="noopener noreferrer">total order&lt;/a> where every element in a set is comparable or every element can be placed in a definite sequence , therefore we can say the system can be totally ordered.
+&lt;img src="https://github.com/s1ntaxe770r/blog/blob/master/content/posts/linear-time.png?raw=true"
+alt="lineartime"/>
+As you might have guess partial ordering is the opposite(kind of). Mathematically, it can be defined as a set in which some pairs of events, we can determine their order, but for others, we cannot.&lt;/p>
+&lt;p>In a distributed system, events $a$ and $b$ on different processes might be concurrent ($a || b$), meaning we can&amp;rsquo;t determine which happened first.&lt;/p>
+&lt;h2 id="what-about-leslie">What about Leslie?&lt;/h2>
+&lt;p>In 1978 &lt;a href="https://www.google.com/search?client=safari&amp;amp;rls=en&amp;amp;q=leslie&amp;#43;lamport&amp;amp;ie=UTF-8&amp;amp;oe=UTF-8"target="_blank" rel="noopener noreferrer">Leslie Lamport&lt;/a> wrote a paper titled &amp;ldquo;Time, Clocks, and the Ordering of Events in a Distributed System&amp;rdquo;, he proposed the concept of logical clocks(lamport clocks) , which provide a way to assign timestamps to events in a distributed system without relying on physical clocks.&lt;/p>
+&lt;p>Part of why this post even exists is because I needed an excuse to implement a Lamport clock, which we will get to shortly.&lt;/p>
+&lt;h2 id="implementing--a-lamport-clock">Implementing a Lamport Clock&lt;/h2>
+&lt;p>I highly doubt my implementation is great but reading and implementing concepts from and academic paper was a fun exercise.&lt;/p>
+&lt;p>I began by creating an enum to represent of the three possible events the paper outlines:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8be9fd;font-style:italic">type&lt;/span> Event &lt;span style="color:#8be9fd">int&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8be9fd;font-style:italic">const&lt;/span> (
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Send = &lt;span style="color:#ff79c6">iota&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Received
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Local
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>)
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="defining-a-clock">Defining a Clock&lt;/h3>
+&lt;p>Next, I created a structure to represent a Lamport clock:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8be9fd;font-style:italic">type&lt;/span> LamportClock &lt;span style="color:#8be9fd;font-style:italic">struct&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> counter atomic.Int32
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> mutext sync.Mutex
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>using &lt;code>atomic.Int32&lt;/code> i can somewhat guarantee thread safety , the counter here is also important because the paper states:&lt;/p>
+&lt;blockquote>
+&lt;p>we define a clock Ci for each process Pi
+to be a function which assigns a number Ci(a) to any
+event a in that process.&lt;/p>
+&lt;/blockquote>
+&lt;p>The mutex is an implementation detail to ensure thread-safety.&lt;/p>
+&lt;p>Now, let&amp;rsquo;s look at the methods:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8be9fd;font-style:italic">func&lt;/span>(lc &lt;span style="color:#ff79c6">*&lt;/span>LamportClock)&lt;span style="color:#50fa7b">Tick&lt;/span>(currentClock &lt;span style="color:#8be9fd">int32&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> currentTime &lt;span style="color:#ff79c6">:=&lt;/span> &lt;span style="color:#8be9fd;font-style:italic">max&lt;/span>(lc.counter.&lt;span style="color:#50fa7b">Load&lt;/span>(), currentClock) &lt;span style="color:#ff79c6">+&lt;/span> &lt;span style="color:#bd93f9">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> lc.counter.&lt;span style="color:#50fa7b">Store&lt;/span>(currentTime)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8be9fd;font-style:italic">func&lt;/span>(lc &lt;span style="color:#ff79c6">*&lt;/span>LamportClock) &lt;span style="color:#50fa7b">Local&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> lc.counter.&lt;span style="color:#50fa7b">Add&lt;/span>(&lt;span style="color:#bd93f9">1&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8be9fd;font-style:italic">func&lt;/span>(lc &lt;span style="color:#ff79c6">*&lt;/span>LamportClock)&lt;span style="color:#50fa7b">CurrentTimestamp&lt;/span>() &lt;span style="color:#8be9fd">int32&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#ff79c6">return&lt;/span> lc.counter.&lt;span style="color:#50fa7b">Load&lt;/span>()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>The &lt;code>Tick&lt;/code> method implements the core of Lamport&amp;rsquo;s clock synchronization. When a message is received, the clock is updated to be greater than both its current value and the timestamp of the received message.&lt;/p>
+&lt;p>&lt;code>max(lc.counter.Load(), currentClock)&lt;/code> compares the local clock value with the received timestamp (&lt;code>currentClock&lt;/code>). We need to use &lt;code>max&lt;/code> here to ensure that the new clock value is greater than both&lt;/p>
+&lt;p>The local clock value (to maintain the local process order) and the received timestamp (to respect the &amp;ldquo;happens-before&amp;rdquo; relationship with the sending process)&lt;/p>
+&lt;p>The &lt;code>Local&lt;/code> method increments the counter for local events. As Lamport put it:&lt;/p>
+&lt;blockquote>
+&lt;p>Each process $P_i$ increments Ci between any two successive events.&lt;/p>
+&lt;/blockquote>
+&lt;p>The &lt;code>CurrentTimestamp&lt;/code> method simply returns the current value of the logical clock, which can be used when sending messages to other processes.&lt;/p>
+&lt;h3 id="processes">Processes&lt;/h3>
+&lt;p>Here i tried to model individual processes or services as nodes in a distributed system.&lt;/p>
+&lt;p>Each node has its own Lamport clock and can send and receive messages.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8be9fd;font-style:italic">type&lt;/span> Node &lt;span style="color:#8be9fd;font-style:italic">interface&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#50fa7b">Send&lt;/span>(CurrentTimestamp &lt;span style="color:#8be9fd">int32&lt;/span>) &lt;span style="color:#8be9fd">int32&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#50fa7b">Receive&lt;/span>(event clock.Event, timestamp &lt;span style="color:#8be9fd">int32&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>I also needed to define a &lt;code>Message&lt;/code> struct to represent the messages exchanged between nodes:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8be9fd;font-style:italic">type&lt;/span> Message &lt;span style="color:#8be9fd;font-style:italic">struct&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> SenderID &lt;span style="color:#8be9fd">string&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Timestamp &lt;span style="color:#8be9fd">int32&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Content &lt;span style="color:#8be9fd">string&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Each message contains the sender&amp;rsquo;s ID, the Lamport timestamp, and the message content.&lt;/p>
+&lt;p>I used a &lt;code>Service&lt;/code>  struct to represent a process with an embedded Lamport clock:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8be9fd;font-style:italic">type&lt;/span> Service &lt;span style="color:#8be9fd;font-style:italic">struct&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Name &lt;span style="color:#8be9fd">string&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Id &lt;span style="color:#8be9fd">string&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> logger &lt;span style="color:#ff79c6">*&lt;/span>slog.Logger
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> MessageChan &lt;span style="color:#8be9fd;font-style:italic">chan&lt;/span> Message
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Clock clock.LamportClock
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> mutext sync.RWMutex
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>In order for the &lt;code>Service&lt;/code> struct to implement the &lt;code>node&lt;/code> interface i added three methods&lt;/p>
+&lt;p>&lt;strong>Send Method&lt;/strong>:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8be9fd;font-style:italic">func&lt;/span> (s &lt;span style="color:#ff79c6">*&lt;/span>Service) &lt;span style="color:#50fa7b">Send&lt;/span>(CurrentTimestamp &lt;span style="color:#8be9fd">int32&lt;/span>) &lt;span style="color:#8be9fd">int32&lt;/span> {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> s.Clock.&lt;span style="color:#50fa7b">Local&lt;/span>()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> msg &lt;span style="color:#ff79c6">:=&lt;/span> Message{
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> SenderID: s.Id,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Timestamp: s.Clock.&lt;span style="color:#50fa7b">CurrentTimestamp&lt;/span>(),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Content: &lt;span style="color:#f1fa8c">&amp;#34;HI LESLIE!!!&amp;#34;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> s.mutext.&lt;span style="color:#50fa7b">Lock&lt;/span>()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> s.MessageChan &lt;span style="color:#ff79c6">&amp;lt;-&lt;/span> msg
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> s.mutext.&lt;span style="color:#50fa7b">Unlock&lt;/span>()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> s.logger.&lt;span style="color:#50fa7b">Info&lt;/span>(&lt;span style="color:#f1fa8c">&amp;#34;sent message&amp;#34;&lt;/span>, &lt;span style="color:#f1fa8c">&amp;#34;Timestamp&amp;#34;&lt;/span>, msg.Timestamp, &lt;span style="color:#f1fa8c">&amp;#34;Content&amp;#34;&lt;/span>, msg.Content)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#ff79c6">return&lt;/span> s.Clock.&lt;span style="color:#50fa7b">CurrentTimestamp&lt;/span>()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>This method implements the sending of a message. It increments the local clock, creates a message with the current timestamp, and sends it through the message channel.&lt;/p>
+&lt;p>Per the paper :&lt;/p>
+&lt;blockquote>
+&lt;p>&amp;ldquo;A process increments its counter before each event in that process.&amp;rdquo;&lt;/p>
+&lt;/blockquote>
+&lt;p>Similarly the Recieve Method:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8be9fd;font-style:italic">func&lt;/span> (s &lt;span style="color:#ff79c6">*&lt;/span>Service) &lt;span style="color:#50fa7b">Receive&lt;/span>(event clock.Event, timestamp &lt;span style="color:#8be9fd">int32&lt;/span>) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> s.Clock.&lt;span style="color:#50fa7b">Tick&lt;/span>(timestamp)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>And finally a helper function for handling received messages&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8be9fd;font-style:italic">func&lt;/span> (s &lt;span style="color:#ff79c6">*&lt;/span>Service) &lt;span style="color:#50fa7b">HandleMessages&lt;/span>() {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> s.logger.&lt;span style="color:#50fa7b">Info&lt;/span>(&lt;span style="color:#f1fa8c">&amp;#34;Starting message handler&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#ff79c6">for&lt;/span> msg &lt;span style="color:#ff79c6">:=&lt;/span> &lt;span style="color:#ff79c6">range&lt;/span> s.MessageChan {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> s.&lt;span style="color:#50fa7b">Receive&lt;/span>(clock.Received, msg.Timestamp)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> s.logger.&lt;span style="color:#50fa7b">Info&lt;/span>(&lt;span style="color:#f1fa8c">&amp;#34;Received Message&amp;#34;&lt;/span>, &lt;span style="color:#f1fa8c">&amp;#34;from&amp;#34;&lt;/span>, msg.SenderID, &lt;span style="color:#f1fa8c">&amp;#34;timestamp&amp;#34;&lt;/span>, msg.Timestamp, &lt;span style="color:#f1fa8c">&amp;#34;Content&amp;#34;&lt;/span>, msg.Content)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="validating-my-implementation">Validating my Implementation&lt;/h3>
+&lt;p>Testing stuff like this is weird, there isn&amp;rsquo;t exactly a guide titled &amp;ldquo;testing your distributed system&amp;rdquo;. But it seemed sane to write some tests to ensure the implementation worked somewhat.&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8be9fd;font-style:italic">func&lt;/span> &lt;span style="color:#50fa7b">TestSingleTick&lt;/span>(t &lt;span style="color:#ff79c6">*&lt;/span>testing.T) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> messageChan &lt;span style="color:#ff79c6">:=&lt;/span> &lt;span style="color:#8be9fd;font-style:italic">make&lt;/span>(&lt;span style="color:#8be9fd;font-style:italic">chan&lt;/span> node.Message, &lt;span style="color:#bd93f9">100&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> OrderService &lt;span style="color:#ff79c6">:=&lt;/span> node.&lt;span style="color:#50fa7b">NewService&lt;/span>(&lt;span style="color:#f1fa8c">&amp;#34;OrderService&amp;#34;&lt;/span>, messageChan)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> OrderService.&lt;span style="color:#50fa7b">Receive&lt;/span>(clock.Received, OrderService.Clock.&lt;span style="color:#50fa7b">CurrentTimestamp&lt;/span>())
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> assert.&lt;span style="color:#50fa7b">Equal&lt;/span>(t, &lt;span style="color:#bd93f9">1&lt;/span>, &lt;span style="color:#8be9fd;font-style:italic">int&lt;/span>(OrderService.Clock.&lt;span style="color:#50fa7b">CurrentTimestamp&lt;/span>()))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8be9fd;font-style:italic">func&lt;/span> &lt;span style="color:#50fa7b">TestSend&lt;/span>(t &lt;span style="color:#ff79c6">*&lt;/span>testing.T) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> messageChan &lt;span style="color:#ff79c6">:=&lt;/span> &lt;span style="color:#8be9fd;font-style:italic">make&lt;/span>(&lt;span style="color:#8be9fd;font-style:italic">chan&lt;/span> node.Message, &lt;span style="color:#bd93f9">100&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> OrderService &lt;span style="color:#ff79c6">:=&lt;/span> node.&lt;span style="color:#50fa7b">NewService&lt;/span>(&lt;span style="color:#f1fa8c">&amp;#34;OrderService&amp;#34;&lt;/span>, messageChan)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#ff79c6">go&lt;/span> OrderService.&lt;span style="color:#50fa7b">HandleMessages&lt;/span>()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> PaymentService &lt;span style="color:#ff79c6">:=&lt;/span> node.&lt;span style="color:#50fa7b">NewService&lt;/span>(&lt;span style="color:#f1fa8c">&amp;#34;PaymentService&amp;#34;&lt;/span>, messageChan)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> CurrentTimestamp &lt;span style="color:#ff79c6">:=&lt;/span> PaymentService.Clock.&lt;span style="color:#50fa7b">CurrentTimestamp&lt;/span>()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> PaymentService.&lt;span style="color:#50fa7b">Send&lt;/span>(CurrentTimestamp)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#6272a4">// Give some time for the message to be processed
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#6272a4">&lt;/span> time.&lt;span style="color:#50fa7b">Sleep&lt;/span>(&lt;span style="color:#bd93f9">100&lt;/span> &lt;span style="color:#ff79c6">*&lt;/span> time.Millisecond)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> assert.&lt;span style="color:#50fa7b">Equal&lt;/span>(t, &lt;span style="color:#bd93f9">2&lt;/span>, &lt;span style="color:#8be9fd;font-style:italic">int&lt;/span>(OrderService.Clock.&lt;span style="color:#50fa7b">CurrentTimestamp&lt;/span>()))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="tick--tickhttpswwwyoutubecomwatchvtqaf5w6ns88">Tick , &lt;a href="https://www.youtube.com/watch?v=tQAF5W6NS88"target="_blank" rel="noopener noreferrer">Tick&lt;/a>&amp;hellip;&lt;/h2>
+&lt;p>while my doubts about my implementation still remain, I learnt a ton about more about clocks and shockingly the human perception of time. Beyond that it was great to get a way from the grasp of Kubernetes.&lt;/p>
+&lt;p>The full implementation is available &lt;a href="https://github.com/s1ntaxe770r/whyport-this-clock"target="_blank" rel="noopener noreferrer">here&lt;/a> , also a lot of the information here wouldn&amp;rsquo;t be possible without these amazing authors:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://medium.com/outreach-prague/lamport-clocks-determining-the-order-of-events-in-distributed-systems-41a9a8489177"target="_blank" rel="noopener noreferrer">Christian Galatolo&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://blog.fponzi.me/2024-02-02-lamport-clocks.html#what-problem-are-they-trying-to-solve"target="_blank" rel="noopener noreferrer">Lamport Clocks by Fredrico Ponzi&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://lamport.azurewebsites.net/pubs/time-clocks.pdf"target="_blank" rel="noopener noreferrer"> The Original Paper&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://book.mixu.net/distsys/time.html"target="_blank" rel="noopener noreferrer">Time and Order by&lt;/a> &lt;a href="http://mixu.net/"target="_blank" rel="noopener noreferrer">Mikito Takada&lt;/a>.&lt;/li>
+&lt;/ul></description></item><item><title>In Search of Coherence</title><link>https://log.jubril.me/posts/in-search-of-coherence/</link><pubDate>Sat, 13 Apr 2024 14:00:29 +0000</pubDate><guid>https://log.jubril.me/posts/in-search-of-coherence/</guid><description>&lt;p>Speak to me enough times, and at some point, you’ll hear me say, “Hold on, let me collect my thoughts” This is a small portion of a bigger goal I think I strive for.&lt;/p>
 &lt;p>Coherence- &lt;em>the state of being connected. Logical, orderly, and consistent relation of parts&lt;/em>. This is as important in speech and more so for me in thought; it’s easy to convey an idea and have the person you are talking to have a rough idea of what you mean. Bringing your thoughts together so that they are consistent is a problem that I have a hard time describing. How do I describe what I’m thinking if I’m not sure of it myself?&lt;/p>
 &lt;p>The answer to this is work in progress; this blog serves as a first step towards describing my thoughts more accurately, and describing the problem is a good first step to understanding and ultimately fixing it; it funny to think I pictured this post being a lot longer, but maybe less is more?&lt;/p>
 &lt;p>In any case, my quest has continued, but I think it’s one I’ll enjoy; in the end, I think we should all strive to convey this in a consistent manner, and I look up to those who already can.&lt;/p></description></item><item><title>Kubernetes on ARM</title><link>https://log.jubril.me/posts/kubernetes-on-arm/</link><pubDate>Sun, 21 Aug 2022 00:00:00 +0000</pubDate><guid>https://log.jubril.me/posts/kubernetes-on-arm/</guid><description>&lt;h1 id="kubernetes-on-arm">Kubernetes on ARM&lt;/h1>
 &lt;p>It’s a nice Tuesday morning, the sun is out and I have had my first cup of coffee, what a lovely time to attempt to install Kubernetes on my Raspberry Pi.&lt;/p>
-&lt;p>I’m using the Raspberry Pi 4 with a 128GB SD card running &lt;a href="https://www.raspbian.org/"target="_blank" rel="noopener noreferrer">Raspbian&lt;/a>
-. Would this be enough? No idea but I’m about to find out.&lt;/p>
+&lt;p>I’m using the Raspberry Pi 4 with a 128GB SD card running &lt;a href="https://www.raspbian.org/"target="_blank" rel="noopener noreferrer">Raspbian&lt;/a>. Would this be enough? No idea but I’m about to find out.&lt;/p>
 &lt;p>&lt;img src="https://file.coffee/u/zgvZ35YWTfDlHxtAc8ZlP.gif"
 alt="lets-go-the-rock.gif"/>&lt;/p>
 &lt;h2 id="current-setup">Current Setup&lt;/h2>
@@ -14,12 +175,9 @@ alt="current setup "/>&lt;/p>
 &lt;p>current setup&lt;/p>
 &lt;h2 id="kubernetes-distributions">Kubernetes Distributions&lt;/h2>
 &lt;p>Much Like Ice-Cream Kubernetes comes in different flavors picking the right combination would be key to how well this works ( so I think). Here are a few I evaluated.&lt;/p>
-&lt;h3 id="kindhttpskindsigsk8sio-kubernetes-in-docker">&lt;a href="https://kind.sigs.k8s.io/"target="_blank" rel="noopener noreferrer">KinD&lt;/a>
-(Kubernetes in Docker)&lt;/h3>
-&lt;p>KinD is a tool for running Kubernetes in Docker, it’s lightweight and works well. I use it for testing stuff on my Mac. But where’s the fun in Installing docker and calling it a day?. I’m not looking to do &lt;a href="https://github.com/kelseyhightower/kubernetes-the-hard-way"target="_blank" rel="noopener noreferrer">Kubernetes the hard way&lt;/a>
-but I want some resistance. For this reason, I would not be picking KinD.&lt;/p>
-&lt;h3 id="but-what-about-k3shttpsk3sio">&lt;a href="https://k3s.io/"target="_blank" rel="noopener noreferrer">But what about K3s?&lt;/a>
-&lt;/h3>
+&lt;h3 id="kindhttpskindsigsk8sio-kubernetes-in-docker">&lt;a href="https://kind.sigs.k8s.io/"target="_blank" rel="noopener noreferrer">KinD&lt;/a> (Kubernetes in Docker)&lt;/h3>
+&lt;p>KinD is a tool for running Kubernetes in Docker, it’s lightweight and works well. I use it for testing stuff on my Mac. But where’s the fun in Installing docker and calling it a day?. I’m not looking to do &lt;a href="https://github.com/kelseyhightower/kubernetes-the-hard-way"target="_blank" rel="noopener noreferrer">Kubernetes the hard way&lt;/a> but I want some resistance. For this reason, I would not be picking KinD.&lt;/p>
+&lt;h3 id="but-what-about-k3shttpsk3sio">&lt;a href="https://k3s.io/"target="_blank" rel="noopener noreferrer">But what about K3s?&lt;/a>&lt;/h3>
 &lt;p>K3s has a reputation for being lightweight and super fast. Promising a 30sec startup time along with being optimized for ARM. It is a very logical choice for my use case.&lt;/p>
 &lt;p>But here’s the thing. I don’t always like being “logical” and something about the next distribution screams INSTALL to me.&lt;/p>
 &lt;h3 id="i-give-you-k0s-">I give you K0s !!!&lt;/h3>
@@ -27,23 +185,19 @@ but I want some resistance. For this reason, I would not be picking KinD.&lt;/p>
 alt="Untitled"/>&lt;/p>
 &lt;p>K0s advertises itself as a “&lt;strong>The Zero Friction Kubernetes”,&lt;/strong> obviously this is not what I am here for, I could sit here and re-word every feature on the k0s homepage but I don’t have time for that today, However, there are a few features I really like.&lt;/p>
 &lt;ol>
-&lt;li>In-Cluster SQLite: this is the default for single-node clusters, this is probably not as performant as ETCD but I’m not trying to &lt;a href="https://github.com/rancher/docs/issues/3134"target="_blank" rel="noopener noreferrer">destroy my SD&lt;/a>
-(prematurely).&lt;/li>
+&lt;li>In-Cluster SQLite: this is the default for single-node clusters, this is probably not as performant as ETCD but I’m not trying to &lt;a href="https://github.com/rancher/docs/issues/3134"target="_blank" rel="noopener noreferrer">destroy my SD&lt;/a> (prematurely).&lt;/li>
 &lt;li>Horizontal Pod Autoscaling: In case I need to scale my home network to handle traffic from a thousand users 🤣.&lt;/li>
 &lt;/ol>
 &lt;p>The features I mentioned most likely exist on k3s but like I said something in me really wants to give k0s a shot.&lt;/p>
 &lt;p>After combing the docs for several &lt;del>days&lt;/del> hours I finally realize why the controller has refused to start. I was doing two things wrong:&lt;/p>
 &lt;ul>
-&lt;li>I was using the installation instructions for Debian machines and k0s had &lt;a href="https://docs.k0sproject.io/v1.24.3&amp;#43;k0s.0/raspberry-pi4/"target="_blank" rel="noopener noreferrer">instructions&lt;/a>
-for the raspberry pi all along 🤦🏽.&lt;/li>
-&lt;li>Needed to enable &lt;code>cgroups&lt;/code> on the pi and a few other &lt;a href="https://docs.k0sproject.io/v1.24.3&amp;#43;k0s.0/raspberry-pi4/#set-up-nodes"target="_blank" rel="noopener noreferrer">options&lt;/a>
-and reboot the PI.&lt;/li>
+&lt;li>I was using the installation instructions for Debian machines and k0s had &lt;a href="https://docs.k0sproject.io/v1.24.3&amp;#43;k0s.0/raspberry-pi4/"target="_blank" rel="noopener noreferrer">instructions&lt;/a> for the raspberry pi all along 🤦🏽.&lt;/li>
+&lt;li>Needed to enable &lt;code>cgroups&lt;/code> on the pi and a few other &lt;a href="https://docs.k0sproject.io/v1.24.3&amp;#43;k0s.0/raspberry-pi4/#set-up-nodes"target="_blank" rel="noopener noreferrer">options&lt;/a> and reboot the PI.&lt;/li>
 &lt;/ul>
 &lt;p>Well that worked so I should have a working cluster right ?&lt;/p>
 &lt;p>&lt;img src="https://file.coffee/u/hgDvJrZlYZJVFCH2zth04.jpg"
 alt="sddefault.jpg"/>&lt;/p>
-&lt;p>After running &lt;code>k0s start&lt;/code> I decide to watch the journalctl logs , which doesn’t sound like a bad idea at first , however I was met with some horrible node errors and at some point &lt;a href="https://coredns.io"target="_blank" rel="noopener noreferrer">coreDNS&lt;/a>
-refused to start. A solid 10 minutes go by and the node errors seemed to have resolved itself and coreDNS seemed to have initialized , but I still see some “partial failures” in the logs and I decide to wait it out a little longer.&lt;/p>
+&lt;p>After running &lt;code>k0s start&lt;/code> I decide to watch the journalctl logs , which doesn’t sound like a bad idea at first , however I was met with some horrible node errors and at some point &lt;a href="https://coredns.io"target="_blank" rel="noopener noreferrer">coreDNS&lt;/a> refused to start. A solid 10 minutes go by and the node errors seemed to have resolved itself and coreDNS seemed to have initialized , but I still see some “partial failures” in the logs and I decide to wait it out a little longer.&lt;/p>
 &lt;p>&lt;img src="https://file.coffee/u/8F-dh7uQ-oTdOfzk9ovsp.png"
 alt="journalctl logs "/>&lt;/p>
 &lt;p>journalctl logs&lt;/p>
@@ -52,8 +206,7 @@ alt="journalctl logs "/>&lt;/p>
 alt="Untitled"/>&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>NAME STATUS ROLES AGE VERSION
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>thev01d Ready control-plane 23m v1.23.6+k0s
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>The node is finally ready , well Mission accomplished right ? Not quite I still need a load balancer that I can use to expose my applications, I’ve heard good things about MetalLB so I would be trying that first. Thankfully k0s has a &lt;a href="https://docs.k0sproject.io/v1.23.6&amp;#43;k0s.2/examples/metallb-loadbalancer/"target="_blank" rel="noopener noreferrer">dedicated pag&lt;/a>
-e for MetalLB.&lt;/p>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>The node is finally ready , well Mission accomplished right ? Not quite I still need a load balancer that I can use to expose my applications, I’ve heard good things about MetalLB so I would be trying that first. Thankfully k0s has a &lt;a href="https://docs.k0sproject.io/v1.23.6&amp;#43;k0s.2/examples/metallb-loadbalancer/"target="_blank" rel="noopener noreferrer">dedicated pag&lt;/a>e for MetalLB.&lt;/p>
 &lt;h2 id="what-about-nginx-ingress-controller-">What about Nginx Ingress controller ?&lt;/h2>
 &lt;p>Ever since I learned about ingress controllers I have always stuck with Nginx because it simple and gives me the least headaches(staring at you traefik) plus A/B testing is super easy with Nginx. The problem here is I don’t really need the routing capabilities of Nginx ingress , here all I need is a single static IP I can access my services on and MetalLB seems to do that.&lt;/p>
 &lt;h2 id="reality-strikes">Reality strikes&lt;/h2>
@@ -90,22 +243,16 @@ alt="wutt"/>&lt;/p>
 &lt;p>Obviously this was a high level overview of what 2pc is and I do not go into specifics of how 2pc works, but I think thats ok. At the beginning of this post I had no clue what two phase commit was, I&amp;rsquo;d say this is a decent explanation for anyone who isn&amp;rsquo;t concerned with the fine details and just wants to answer the burning question WTF is 2pc.&lt;/p>
 &lt;p>But if you&amp;rsquo;d like to know more here are some relevant links I found while researching this:&lt;/p>
 &lt;p>From Martin Fowler
-&lt;a href="https://martinfowler.com/articles/patterns-of-distributed-systems/two-phase-commit.html#solution"target="_blank" rel="noopener noreferrer">https://martinfowler.com/articles/patterns-of-distributed-systems/two-phase-commit.html#solution&lt;/a>
-&lt;/p>
+&lt;a href="https://martinfowler.com/articles/patterns-of-distributed-systems/two-phase-commit.html#solution"target="_blank" rel="noopener noreferrer">https://martinfowler.com/articles/patterns-of-distributed-systems/two-phase-commit.html#solution&lt;/a>&lt;/p>
 &lt;p>Obligatory wikipedia reference
-&lt;a href="https://en.wikipedia.org/wiki/Two-phase_commit_protocol"target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Two-phase_commit_protocol&lt;/a>
-&lt;/p>
+&lt;a href="https://en.wikipedia.org/wiki/Two-phase_commit_protocol"target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Two-phase_commit_protocol&lt;/a>&lt;/p>
 &lt;p>This blog I found
-&lt;a href="https://www.techopedia.com/definition/1252/two-phase-commit"target="_blank" rel="noopener noreferrer">https://www.techopedia.com/definition/1252/two-phase-commit&lt;/a>
-&lt;/p>
+&lt;a href="https://www.techopedia.com/definition/1252/two-phase-commit"target="_blank" rel="noopener noreferrer">https://www.techopedia.com/definition/1252/two-phase-commit&lt;/a>&lt;/p>
 &lt;p>Not as comprehensive but helpful
-&lt;a href="https://www.educative.io/edpresso/what-is-the-two-phase-commit-protocol"target="_blank" rel="noopener noreferrer">https://www.educative.io/edpresso/what-is-the-two-phase-commit-protocol&lt;/a>
-&lt;/p></description></item><item><title>TLS in a Nutshell</title><link>https://log.jubril.me/posts/tls-in-a-nutshell/</link><pubDate>Wed, 06 Oct 2021 02:37:19 +0100</pubDate><guid>https://log.jubril.me/posts/tls-in-a-nutshell/</guid><description>&lt;h1 id="tls-in-a-nutshell">TLS in a nutshell&lt;/h1>
-&lt;p>So it&amp;rsquo;s 1 am once again and I suddenly find myself questioning how the web works from the ground up(not even kidding this time), after roughly 30mins of re validating my knowledge, i have arrived at TLS whilst watching a nice talk by Daniel Stenberg, the author of curl,talk is over &lt;a href="https://www.youtube.com/watch?v=pUxyukqoXR4"target="_blank" rel="noopener noreferrer">here&lt;/a>
-btw
+&lt;a href="https://www.educative.io/edpresso/what-is-the-two-phase-commit-protocol"target="_blank" rel="noopener noreferrer">https://www.educative.io/edpresso/what-is-the-two-phase-commit-protocol&lt;/a>&lt;/p></description></item><item><title>TLS in a Nutshell</title><link>https://log.jubril.me/posts/tls-in-a-nutshell/</link><pubDate>Wed, 06 Oct 2021 02:37:19 +0100</pubDate><guid>https://log.jubril.me/posts/tls-in-a-nutshell/</guid><description>&lt;h1 id="tls-in-a-nutshell">TLS in a nutshell&lt;/h1>
+&lt;p>So it&amp;rsquo;s 1 am once again and I suddenly find myself questioning how the web works from the ground up(not even kidding this time), after roughly 30mins of re validating my knowledge, i have arrived at TLS whilst watching a nice talk by Daniel Stenberg, the author of curl,talk is over &lt;a href="https://www.youtube.com/watch?v=pUxyukqoXR4"target="_blank" rel="noopener noreferrer">here&lt;/a> btw
 . In this talk Daniel goes over how the web has evolved from HTTP/1.1 down to HTTP2
-and now HTTP 3 which is apparently going to save us all(no offense,i think &lt;a href="https://en.wikipedia.org/wiki/QUIC"target="_blank" rel="noopener noreferrer">QUIC&lt;/a>
-) is an amazing protocol, but that&amp;rsquo;s besides the point here.&lt;/p>
+and now HTTP 3 which is apparently going to save us all(no offense,i think &lt;a href="https://en.wikipedia.org/wiki/QUIC"target="_blank" rel="noopener noreferrer">QUIC&lt;/a>) is an amazing protocol, but that&amp;rsquo;s besides the point here.&lt;/p>
 &lt;h2 id="so-what-is-my-point-here">So what is my point here?&lt;/h2>
 &lt;p>well every so often I ask myself if I where to explain &lt;!-- raw HTML omitted --> to someone would i really be able to do it? if the answer is no , then it&amp;rsquo;s safe to say I don&amp;rsquo;t know enough about said topic, which means I need to do more research or find a way to put words together so the other person can understand. And this was the case with TLS,
 whilst watching Daniel&amp;rsquo;s presentation I honestly never thought about explaining TLS, I mean i&amp;rsquo;ve tried once, but i&amp;rsquo;m quite sure the other person understood only because he was a technical person and not because i did a good job. So now i attempt to explain TLS in as few words as possible.&lt;/p>
@@ -126,19 +273,15 @@ This took me way longer than it should have, because apparently explaining TLS i
 &lt;h3 id="a-bit-more-technical-but-great-reads">A bit more technical but great reads&lt;/h3>
 &lt;p>🤩 The original TLS specification: &lt;a href="https://datatracker.ietf.org/doc/html/rfc2246#ref-XDR"target="_blank" rel="noopener noreferrer">https://datatracker.ietf.org/doc/html/rfc2246#ref-XDR&lt;/a>
 Obligatory Wikipedia reference: &lt;a href="https://en.wikipedia.org/wiki/Transport_Layer_Security"target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Transport_Layer_Security&lt;/a>
-Little more on TLS handshakes: &lt;a href="https://www.digicert.com/how-tls-ssl-certificates-work"target="_blank" rel="noopener noreferrer">https://www.digicert.com/how-tls-ssl-certificates-work&lt;/a>
-&lt;/p></description></item><item><title>Infrastructure Automation With Kubestack</title><link>https://log.jubril.me/posts/infra-automation-with-kubestack/</link><pubDate>Mon, 07 Jun 2021 19:15:43 +0100</pubDate><guid>https://log.jubril.me/posts/infra-automation-with-kubestack/</guid><description>&lt;h1 id="infrastructure-automation-with-kubestack">Infrastructure Automation with Kubestack&lt;/h1>
-&lt;p>Over the weekend I got to try out &lt;a href="https://kubestack.com"target="_blank" rel="noopener noreferrer">Kubestack&lt;/a>
-and in this post, I would be giving some of my thoughts on it.&lt;/p>
+Little more on TLS handshakes: &lt;a href="https://www.digicert.com/how-tls-ssl-certificates-work"target="_blank" rel="noopener noreferrer">https://www.digicert.com/how-tls-ssl-certificates-work&lt;/a>&lt;/p></description></item><item><title>Infrastructure Automation With Kubestack</title><link>https://log.jubril.me/posts/infra-automation-with-kubestack/</link><pubDate>Mon, 07 Jun 2021 19:15:43 +0100</pubDate><guid>https://log.jubril.me/posts/infra-automation-with-kubestack/</guid><description>&lt;h1 id="infrastructure-automation-with-kubestack">Infrastructure Automation with Kubestack&lt;/h1>
+&lt;p>Over the weekend I got to try out &lt;a href="https://kubestack.com"target="_blank" rel="noopener noreferrer">Kubestack&lt;/a> and in this post, I would be giving some of my thoughts on it.&lt;/p>
 &lt;p>FULL DISCLAIMER: while I am being paid to write this post the opinions and views expressed here are completely mines.&lt;/p>
 &lt;h2 id="so-whats-this-thing-anyway">So what&amp;rsquo;s this thing anyway?&lt;/h2>
 &lt;p>That was my first question as I have only ever heard about Kubestack in passing.&lt;/p>
-&lt;p>Kubestack is a &lt;a href="https://about.gitlab.com/topics/gitops/"target="_blank" rel="noopener noreferrer">GitOps&lt;/a>
-framework aimed at simplifying the process of spinning up a Kubernetes cluster and automating subsequent deployments to your cluster. At the time of writing, Kubestack supports GKE, AKS, and EKS. Alright, now I know what it is but how is this any different than building my own CI/CD pipeline? Only one way to find out&amp;hellip;&lt;/p>
+&lt;p>Kubestack is a &lt;a href="https://about.gitlab.com/topics/gitops/"target="_blank" rel="noopener noreferrer">GitOps&lt;/a> framework aimed at simplifying the process of spinning up a Kubernetes cluster and automating subsequent deployments to your cluster. At the time of writing, Kubestack supports GKE, AKS, and EKS. Alright, now I know what it is but how is this any different than building my own CI/CD pipeline? Only one way to find out&amp;hellip;&lt;/p>
 &lt;h2 id="getting-started">Getting started&lt;/h2>
 &lt;p>Before this, I have only made one attempt at automating how I deploy Kubernetes on azure, so if this worked out it would be such a joy because my last experiment didn&amp;rsquo;t go too well. So for the majority of this process, I would keep comparing my experience to my last attempt at something like this.&lt;/p>
-&lt;p>Enough talk let&amp;rsquo;s get right to it. The quickest way of getting started with Kubestack is by going through the &lt;a href="https://www.kubestack.com/framework/documentation/tutorial-get-started"target="_blank" rel="noopener noreferrer">getting started&lt;/a>
-guide. The guide is split into three parts which I find very nice as it allowed me to digest an individual section before moving to the next.&lt;/p>
+&lt;p>Enough talk let&amp;rsquo;s get right to it. The quickest way of getting started with Kubestack is by going through the &lt;a href="https://www.kubestack.com/framework/documentation/tutorial-get-started"target="_blank" rel="noopener noreferrer">getting started&lt;/a> guide. The guide is split into three parts which I find very nice as it allowed me to digest an individual section before moving to the next.&lt;/p>
 &lt;h3 id="kubestack-command-line">Kubestack command line&lt;/h3>
 &lt;p>The setup here was quite straightforward, grab the binary, unzip and move it to your path, before I proceeded with the rest of the tutorial I decided to explore a bit by viewing some of the subcommand available. Honestly, I have no real complaints here, the subcommands are clearly explained and flags are consistent. Although I would like to see tab completion, that&amp;rsquo;s just personal preference 😄&lt;/p>
 &lt;h3 id="bootstrapping-your-cluster">Bootstrapping your cluster&lt;/h3>
@@ -146,11 +289,9 @@ guide. The guide is split into three parts which I find very nice as it allowed 
 &lt;p>code. This is powerful because one you can now generate the configuration for all supported clouds and two I no longer have to copy and paste most of my code from a previous project. Once you have your &amp;ldquo;repository&amp;rdquo; initialized you only have to change three values to get going.&lt;/p>
 &lt;p>Where things started to get tricky for me was the inheritance model the terraform code Kubestack generated uses, But this might be due to my lack of experience in that area but it&amp;rsquo;s something to look out for.&lt;/p>
 &lt;h3 id="testing-locally">Testing locally&lt;/h3>
-&lt;p>Kubestack has a neat feature that will provision a local Kubernetes cluster using &lt;a href="https://kind.sigs.k8s.io/"target="_blank" rel="noopener noreferrer">KinD&lt;/a>
-and test your configuration against it, the advantage of this can&amp;rsquo;t be emphasized enough, I&amp;rsquo;ve broken a good chunk of my infrastructure simply because I didn&amp;rsquo;t have a sandbox environment to test against.&lt;/p>
+&lt;p>Kubestack has a neat feature that will provision a local Kubernetes cluster using &lt;a href="https://kind.sigs.k8s.io/"target="_blank" rel="noopener noreferrer">KinD&lt;/a> and test your configuration against it, the advantage of this can&amp;rsquo;t be emphasized enough, I&amp;rsquo;ve broken a good chunk of my infrastructure simply because I didn&amp;rsquo;t have a sandbox environment to test against.&lt;/p>
 &lt;p>In addition, Kubestack generates a docker image with a few tools installed e.g(Kustomize, Terraform)&lt;/p>
-&lt;p>I found this quite convenient as I had an older version of terraform installed so I just opted to use the docker image instead. Creating a service principal for my account was a fairly smooth experience, the only real problem I ran into was giving to my service account. I ran into the following &lt;a href="https://login.microsoftonline.com/error?code=50076"target="_blank" rel="noopener noreferrer">error&lt;/a>
-which I was able to resolve by granting the account permission through the Azure portal.&lt;/p>
+&lt;p>I found this quite convenient as I had an older version of terraform installed so I just opted to use the docker image instead. Creating a service principal for my account was a fairly smooth experience, the only real problem I ran into was giving to my service account. I ran into the following &lt;a href="https://login.microsoftonline.com/error?code=50076"target="_blank" rel="noopener noreferrer">error&lt;/a> which I was able to resolve by granting the account permission through the Azure portal.&lt;/p>
 &lt;h2 id="deploying">Deploying&lt;/h2>
 &lt;p>This was equally as easy creating two workspaces and deploying resources in each was pretty straightforward, one new concept (for me at least) is Kubestack would set up DNS per environment so this interesting to see.&lt;/p>
 &lt;h2 id="automation">Automation&lt;/h2>
@@ -159,8 +300,7 @@ which I was able to resolve by granting the account permission through the Azure
 &lt;p>Yes! Of all the steps this took me the least amount of time to complete, the only problem I ran into was base64 encoding my credentials which I got around by removing &lt;code>-w&lt;/code> because line breaks are automatically ignored on Mac, even at that it took me about 10mins to set up the entire pipeline.&lt;/p>
 &lt;p>While I&amp;rsquo;m a huge fan of Github actions it would be nice to have the option of seeing the setup for other CI services like GitLab&lt;/p>
 &lt;h2 id="beyond-the-tutorial">Beyond the tutorial&lt;/h2>
-&lt;p>And now for the fun part, trying things outside the tutorial. For this part, I wanted to see what else I could deploy to my cluster so I consulted the &lt;a href="https://www.kubestack.com/catalog"target="_blank" rel="noopener noreferrer">catalog&lt;/a>
-section and picked Argo CD ( other resources such as Flux Prometheus Operator and Cert Manger are also available ), as I mentioned earlier I&amp;rsquo;m very new to the inheritance model Kubestack uses and so this did not end too well, but this was not a total failure I saw this as an opportunity to really stretch the Pipeline I had just built out and so I made one more failing deployment and then I was able to rollback by simply reverting my commit, this is where GitOps truly shines, the fact that your infrastructure can now be thought of as commits in Git, Although I think the documentation could do a better job towards guiding people new to this style of configuration.&lt;/p>
+&lt;p>And now for the fun part, trying things outside the tutorial. For this part, I wanted to see what else I could deploy to my cluster so I consulted the &lt;a href="https://www.kubestack.com/catalog"target="_blank" rel="noopener noreferrer">catalog&lt;/a> section and picked Argo CD ( other resources such as Flux Prometheus Operator and Cert Manger are also available ), as I mentioned earlier I&amp;rsquo;m very new to the inheritance model Kubestack uses and so this did not end too well, but this was not a total failure I saw this as an opportunity to really stretch the Pipeline I had just built out and so I made one more failing deployment and then I was able to rollback by simply reverting my commit, this is where GitOps truly shines, the fact that your infrastructure can now be thought of as commits in Git, Although I think the documentation could do a better job towards guiding people new to this style of configuration.&lt;/p>
 &lt;h2 id="additional-concerns">Additional concerns&lt;/h2>
 &lt;p>As I worked my way through the tutorial one thing that bothered me were the deprecation warnings that popped up every now and then, as i mentioned earlier this is something that could be fixed in a subsequent release.&lt;/p>
 &lt;h2 id="closing-thoughts">Closing thoughts&lt;/h2>
@@ -170,13 +310,10 @@ section and picked Argo CD ( other resources such as Flux Prometheus Operator an
 &lt;li>more resources in the catalouge section.&lt;/li>
 &lt;li>more clouds supported.&lt;/li>
 &lt;/ul>
-&lt;p>That sums up my experience with Kubestack feel free to check it out over &lt;a href="https://kubestack.com"target="_blank" rel="noopener noreferrer">here&lt;/a>
-and the complete code from the tutorial over &lt;a href="https://github.com/s1ntaxe770r/kubestack-sandbox"target="_blank" rel="noopener noreferrer">here&lt;/a>
-&lt;/p></description></item><item><title>What the heck is a data plane?</title><link>https://log.jubril.me/posts/data-plane/</link><pubDate>Wed, 12 May 2021 12:49:07 +0100</pubDate><guid>https://log.jubril.me/posts/data-plane/</guid><description>&lt;p>&lt;img src="https://www.treehugger.com/thmb/zHEqqllMa66MSzzitQ8G5pp136Y=/768x0/filters:no_upscale%28%29:max_bytes%28150000%29:strip_icc%28%29/__opt__aboutcom__coeus__resources__content_migration__mnn__images__2014__09__shutterstock_556793080-b4a5fd4b2287434b959ef955e39a7aa7.jpg"
+&lt;p>That sums up my experience with Kubestack feel free to check it out over &lt;a href="https://kubestack.com"target="_blank" rel="noopener noreferrer">here&lt;/a> and the complete code from the tutorial over &lt;a href="https://github.com/s1ntaxe770r/kubestack-sandbox"target="_blank" rel="noopener noreferrer">here&lt;/a>&lt;/p></description></item><item><title>What the heck is a data plane?</title><link>https://log.jubril.me/posts/data-plane/</link><pubDate>Wed, 12 May 2021 12:49:07 +0100</pubDate><guid>https://log.jubril.me/posts/data-plane/</guid><description>&lt;p>&lt;img src="https://www.treehugger.com/thmb/zHEqqllMa66MSzzitQ8G5pp136Y=/768x0/filters:no_upscale%28%29:max_bytes%28150000%29:strip_icc%28%29/__opt__aboutcom__coeus__resources__content_migration__mnn__images__2014__09__shutterstock_556793080-b4a5fd4b2287434b959ef955e39a7aa7.jpg"
 alt="Paper Airplane Sets Record With 82-Mile Flight"/>&lt;/p>
 &lt;p>As i sit here at 12:50am . I attempt to answer the question that&amp;rsquo;s been on my mind for days now. &amp;ldquo;What the heck is a data plane?&amp;rdquo;.&lt;/p>
-&lt;p>To fully understand we need to back track a bit. A data plane is one of two major components of a &lt;a href="https://www.redhat.com/en/topics/microservices/what-is-a-service-mesh"target="_blank" rel="noopener noreferrer">service mesh&lt;/a>
-, yet that alone is far from the answer i seek.&lt;/p>
+&lt;p>To fully understand we need to back track a bit. A data plane is one of two major components of a &lt;a href="https://www.redhat.com/en/topics/microservices/what-is-a-service-mesh"target="_blank" rel="noopener noreferrer">service mesh&lt;/a> , yet that alone is far from the answer i seek.&lt;/p>
 &lt;h2 id="taking-a-closer-look">Taking a closer look&lt;/h2>
 &lt;p>To find the answers i seek, it&amp;rsquo;s worth taking look at the architecture of a typical service mesh and analyze from there.&lt;/p>
 &lt;p>&lt;span class="image-container">&lt;span class="link">&lt;img class="img" src="https://istio.io/latest/docs/ops/deployment/architecture/arch.svg"
@@ -191,8 +328,5 @@ alt="istio architecture"/>&lt;/span>&lt;span class="caption">&lt;span class="tit
 &lt;li>Observability&lt;/li>
 &lt;li>Service Discovery&lt;/li>
 &lt;/ul>
-&lt;p>Popular examples inclued , &lt;a href="https://envoyproxy.io"target="_blank" rel="noopener noreferrer">Envoy proxy&lt;/a>
-, &lt;a href="https://nginx.com"target="_blank" rel="noopener noreferrer">Nginx&lt;/a>
-, &lt;a href="https://traefik.io/"target="_blank" rel="noopener noreferrer">Traefik&lt;/a>
-.&lt;/p></description></item><item><title>First Post</title><link>https://log.jubril.me/posts/first-post/</link><pubDate>Mon, 26 Apr 2021 15:38:07 +0100</pubDate><guid>https://log.jubril.me/posts/first-post/</guid><description>&lt;h1 id="wow-it-works">Wow it works&lt;/h1>
+&lt;p>Popular examples inclued , &lt;a href="https://envoyproxy.io"target="_blank" rel="noopener noreferrer">Envoy proxy&lt;/a>, &lt;a href="https://nginx.com"target="_blank" rel="noopener noreferrer">Nginx&lt;/a> , &lt;a href="https://traefik.io/"target="_blank" rel="noopener noreferrer">Traefik&lt;/a>.&lt;/p></description></item><item><title>First Post</title><link>https://log.jubril.me/posts/first-post/</link><pubDate>Mon, 26 Apr 2021 15:38:07 +0100</pubDate><guid>https://log.jubril.me/posts/first-post/</guid><description>&lt;h1 id="wow-it-works">Wow it works&lt;/h1>
 &lt;p>Hello world&lt;/p></description></item></channel></rss>
