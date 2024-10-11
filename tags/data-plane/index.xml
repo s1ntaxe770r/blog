@@ -6,8 +6,8 @@
 Determining which came first is a matter of checking which has the lower timestamp.&lt;/p>
 &lt;p>Mathematically we can represent this as:&lt;/p>
 &lt;p>Let $$t_a$$ be the timestamp of event in process $$a$$&lt;/p>
-&lt;p>$$t_a \text{ : timestamp of event in process } a$$
-$$t_b \text{ : timestamp of event in process } b$$&lt;/p>
+&lt;p>$$t_a \text{ : timestamp of event in process } a$$&lt;/p>
+&lt;p>$$t_b \text{ : timestamp of event in process } b$$&lt;/p>
 &lt;p>If $$t_a &amp;lt; t_b$$ ,the event in process $$a$$ occurred first&lt;/p>
 &lt;p>We use the notation $$a \rightarrow b$$ to denote that event $$a$$ happens before event $$b$$.&lt;/p>
 &lt;p>For example, to say that an event in process $$a$$ happens before an event in process $$b$$, we write:&lt;/p>
