@@ -3,7 +3,6 @@ languageCode = "en-us"
 title = "$> cat /var/log/e770r"
 theme = "hugo-notepadium"
 copyright = "©2021 s1ntaxe770r"
-googleAnalytics="G-D6NJ1ZKSX9"
 bio = "Hi there, welcome to my corener of the interwebs where i share ramblings from my encounters with technology"
 [params.nav]
 showCategories = true       
