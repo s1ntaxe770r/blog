@@ -2,26 +2,26 @@
 &lt;p>The rationale behind my thinking is fairly simple. In a large distributed system, how does the system maintain order ? Better still how does each process know which event came first?&lt;/p>
 &lt;p>Before the rambling continues, perhaps i should start by defining what an &lt;em>event&lt;/em> is. An &lt;em>event&lt;/em> simply refers an occurrence or action within a process. This could include sending or receiving a message or some kind of local action such as writing to disk.&lt;/p>
 &lt;h2 id="what-happened-to-timestamps">What happened to timestamps?&lt;/h2>
-&lt;p>Time stamps are great and are easy to reason about. process $a$ and $b$ receive an event at time &lt;em>t&lt;/em> .
+&lt;p>Time stamps are great and are easy to reason about. process $$a$$ and $$b$$ receive an event at time &lt;em>t&lt;/em> .
 Determining which came first is a matter of checking which has the lower timestamp.
 Mathematically we can represent this as:&lt;/p>
-&lt;p>Let $t_a$ be the timestamp of event in process $a$
+&lt;p>Let $$t_a$$ be the timestamp of event in process $$a$$
 $$t_a \text{ : timestamp of event in process } a$$
-and $t_b$ be the timestamp of event in process $b$ $t_b \text{ : timestamp of event in process } b$
-If $t_a &amp;lt; t_b$ , event in process $a$ occurred first $$t_a &amp;lt; t_b \implies \text{event in process } a \text{ occurred first}$$
-we use the notation $a \rightarrow b$ to denote that event $a$ happens before event $b$.&lt;/p>
-&lt;p>For example, if we want to say that an event in process $a$ happens before an event in process $b$, we can write: $$t_a \rightarrow t_b$$
-This is read as &amp;ldquo;the event at time $t_a$ happens before the event at time $t_b$&amp;rdquo;.&lt;/p>
+and $$t_b$$ be the timestamp of event in process $$b$$ $$t_b \text{ : timestamp of event in process } b$$
+If $$t_a &amp;lt; t_b$$ , event in process $$a$$ occurred first $$t_a &amp;lt; t_b \implies \text{event in process } a \text{ occurred first}$$
+we use the notation $$a \rightarrow b$$ to denote that event $$a$$ happens before event $$b$$.&lt;/p>
+&lt;p>For example, if we want to say that an event in process $$a$$ happens before an event in process $$b$$, we can write: $$t_a \rightarrow t_b$$
+This is read as &amp;ldquo;the event at time $$t_a$$ happens before the event at time $$t_b$$&amp;rdquo;.&lt;/p>
 &lt;p>Easy enough, but things start to fall apart we have to account for something called clock skew. Clock skew occurs when the internal clocks of different computers are not perfectly synchronized.&lt;/p>
 &lt;p>Even in the same data center, two processes running on separate machines can experience clock skew due to factors such as clock crystals may ticking at slightly different rates, latency in the NTP protocol.&lt;/p>
 &lt;p>That being said, order in distributed systems can be divided in two type. Partial and total order.&lt;/p>
 &lt;h3 id="partial-vs-total-order">Partial vs Total Order&lt;/h3>
-&lt;p>The human mind views time as linear, AKA event $a$ $\rightarrow$ $b$ $\rightarrow$ $c$ as time passes.&lt;/p>
+&lt;p>The human mind views time as linear, AKA event $$a$$ $$\rightarrow$$ $$b$$ $$\rightarrow$$ $$c$$ as time passes.&lt;/p>
 &lt;p>This is an easy way to think of the concept of &lt;a href="https://en.wikipedia.org/wiki/Total_order"target="_blank" rel="noopener noreferrer">total order&lt;/a> where every element in a set is comparable or every element can be placed in a definite sequence , therefore we can say the system can be totally ordered.
 &lt;img src="https://github.com/s1ntaxe770r/blog/blob/master/content/posts/linear-time.png?raw=true"
 alt="lineartime"/>
 As you might have guess partial ordering is the opposite(kind of). Mathematically, it can be defined as a set in which some pairs of events, we can determine their order, but for others, we cannot.&lt;/p>
-&lt;p>In a distributed system, events $a$ and $b$ on different processes might be concurrent ($a || b$), meaning we can&amp;rsquo;t determine which happened first.&lt;/p>
+&lt;p>In a distributed system, events $$a$$ and $$b$$ on different processes might be concurrent ($$a || b$$), meaning we can&amp;rsquo;t determine which happened first.&lt;/p>
 &lt;h2 id="what-about-leslie">What about Leslie?&lt;/h2>
 &lt;p>In 1978 &lt;a href="https://www.google.com/search?client=safari&amp;amp;rls=en&amp;amp;q=leslie&amp;#43;lamport&amp;amp;ie=UTF-8&amp;amp;oe=UTF-8"target="_blank" rel="noopener noreferrer">Leslie Lamport&lt;/a> wrote a paper titled &amp;ldquo;Time, Clocks, and the Ordering of Events in a Distributed System&amp;rdquo;, he proposed the concept of logical clocks(lamport clocks) , which provide a way to assign timestamps to events in a distributed system without relying on physical clocks.&lt;/p>
 &lt;p>Part of why this post even exists is because I needed an excuse to implement a Lamport clock, which we will get to shortly.&lt;/p>
@@ -61,14 +61,14 @@ event a in that process.&lt;/p>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8be9fd;font-style:italic">func&lt;/span>(lc &lt;span style="color:#ff79c6">*&lt;/span>LamportClock)&lt;span style="color:#50fa7b">CurrentTimestamp&lt;/span>() &lt;span style="color:#8be9fd">int32&lt;/span> {
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#ff79c6">return&lt;/span> lc.counter.&lt;span style="color:#50fa7b">Load&lt;/span>()
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>The &lt;code>Tick&lt;/code> method implements the core of Lamport&amp;rsquo;s clock synchronization. When a message is received, the clock is updated to be greater than both its current value and the timestamp of the received message.&lt;/p>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>The &lt;code>Tick&lt;/code> method implements the core of Lamport&amp;rsquo;s clock synchronization. When a message is received, the clock is updated to be greater than both its current value and the timestamp of the received message.&lt;/p>
 &lt;p>&lt;code>max(lc.counter.Load(), currentClock)&lt;/code> compares the local clock value with the received timestamp (&lt;code>currentClock&lt;/code>). We need to use &lt;code>max&lt;/code> here to ensure that the new clock value is greater than both&lt;/p>
 &lt;p>The local clock value (to maintain the local process order) and the received timestamp (to respect the &amp;ldquo;happens-before&amp;rdquo; relationship with the sending process)&lt;/p>
-&lt;p>The &lt;code>Local&lt;/code> method increments the counter for local events. As Lamport put it:&lt;/p>
+&lt;p>The &lt;code>Local&lt;/code> method increments the counter for local events. As Lamport put it:&lt;/p>
 &lt;blockquote>
-&lt;p>Each process $P_i$ increments Ci between any two successive events.&lt;/p>
+&lt;p>Each process $$P_i$$ increments Ci between any two successive events.&lt;/p>
 &lt;/blockquote>
-&lt;p>The &lt;code>CurrentTimestamp&lt;/code> method simply returns the current value of the logical clock, which can be used when sending messages to other processes.&lt;/p>
+&lt;p>The &lt;code>CurrentTimestamp&lt;/code> method simply returns the current value of the logical clock, which can be used when sending messages to other processes.&lt;/p>
 &lt;h3 id="processes">Processes&lt;/h3>
 &lt;p>Here i tried to model individual processes or services as nodes in a distributed system.&lt;/p>
 &lt;p>Each node has its own Lamport clock and can send and receive messages.&lt;/p>
@@ -76,14 +76,14 @@ event a in that process.&lt;/p>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#50fa7b">Send&lt;/span>(CurrentTimestamp &lt;span style="color:#8be9fd">int32&lt;/span>) &lt;span style="color:#8be9fd">int32&lt;/span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#50fa7b">Receive&lt;/span>(event clock.Event, timestamp &lt;span style="color:#8be9fd">int32&lt;/span>)
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>I also needed to define a &lt;code>Message&lt;/code> struct to represent the messages exchanged between nodes:&lt;/p>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>I also needed to define a &lt;code>Message&lt;/code> struct to represent the messages exchanged between nodes:&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8be9fd;font-style:italic">type&lt;/span> Message &lt;span style="color:#8be9fd;font-style:italic">struct&lt;/span> {
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> SenderID &lt;span style="color:#8be9fd">string&lt;/span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Timestamp &lt;span style="color:#8be9fd">int32&lt;/span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Content &lt;span style="color:#8be9fd">string&lt;/span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Each message contains the sender&amp;rsquo;s ID, the Lamport timestamp, and the message content.&lt;/p>
-&lt;p>I used a &lt;code>Service&lt;/code>  struct to represent a process with an embedded Lamport clock:&lt;/p>
+&lt;p>I used a &lt;code>Service&lt;/code> struct to represent a process with an embedded Lamport clock:&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-go" data-lang="go">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#8be9fd;font-style:italic">type&lt;/span> Service &lt;span style="color:#8be9fd;font-style:italic">struct&lt;/span> {
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Name &lt;span style="color:#8be9fd">string&lt;/span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Id &lt;span style="color:#8be9fd">string&lt;/span>
